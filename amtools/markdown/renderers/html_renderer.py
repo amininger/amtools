@@ -64,6 +64,8 @@ class HtmlRenderer:
         return HtmlTemplates.p(rendered_text)
 
     def render_text_element(self, text: str) -> str:
+        if isinstance(text, RawText):
+            return text.raw_text()
         if isinstance(text, Hyperlink):
             return self.render_hyperlink(text)
         if isinstance(text, InlineText):

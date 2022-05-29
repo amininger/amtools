@@ -19,15 +19,22 @@ class InlineText:
             else:
                 self.elements.append(el)
 
+    def raw_text(self) -> str:
+        child_text = (el.raw_text().strip() for el in self.elements)
+        return " ".join(t for t in child_text if len(t) > 0)
+
     def __str__(self) -> str:
         return "[T:" + " ".join(map(str, self.elements)) + "]"
 
 class RawText:
     def __init__(self, text: str):
         self.text = text
+
+    def raw_text(self) -> str:
+        return self.text
         
     def __str__(self) -> str:
-        return self.text
+        return "\"" + self.text + "\""
 
 class BoldText(InlineText):
     def __str__(self) -> str:

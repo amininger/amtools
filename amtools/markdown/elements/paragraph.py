@@ -29,5 +29,6 @@ class Paragraph:
         self.elements = elements
     
     def __str__(self) -> str:
-        return "P(\n  " + '\n  '.join(map(str, self.elements)) + "\n)"
+        return "P(\n  " + '\n  '.join(el.raw_text() for el in self.elements) + "\n)"
+        #return "P(\n  " + '\n  '.join(map(str, self.elements)) + "\n)"
 
