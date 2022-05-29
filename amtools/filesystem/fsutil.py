@@ -3,7 +3,6 @@ import re
 
 from amtools import LineReader, FileReader
 
-
 class fsutil:
     """ Contains static methods for interacting with the file system """
 

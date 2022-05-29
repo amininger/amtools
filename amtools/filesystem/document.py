@@ -1,34 +1,24 @@
 import os
 
-from .directory import Directory
-
 from amtools import FileReader
 from amtools.markdown.parsers import MarkdownParser
 from amtools.markdown.renderers import MenuRenderer
 
 from .fsutil import fsutil
+from .file import File
+from .directory import Directory
 
-class Document:
-    def __init__(self, filename: str, rel_path=None):
-        self.filename = filename
-        self.rel_path = rel_path
+class Document(File):
+    def __init__(self, file_path: str, rel_path=None):
+        super().__init__(file_path, rel_path)
+        self.filename = os.path.basename(self.path)
         self.name = fsutil.filename2title(self.filename)
 
-        self.metadata = fsutil.read_file_metadata(filename)
-        self.parent = Directory(os.path.dirname(filename))
+        self.metadata = fsutil.read_file_metadata(self.path)
+        self.parent = Directory(self.cur_dir, self.rel_dir)
 
         # Merge directory metadata
         for k, v in self.parent.metadata.items():
             if k not in self.metadata:
                 self.metadata[k] = v
     
-    def get_menu_html(self):
-        menu_file = self.metadata.get('menu', 'menu') + '.md'
-        menu_path = os.path.join(self.parent.dir_path, menu_file)
-        md_elements = MarkdownParser.parse_file(menu_path)
-        if md_elements is None:
-            return None
-
-        renderer = MenuRenderer()
-        return renderer.render_markdown_elements(md_elements)
-

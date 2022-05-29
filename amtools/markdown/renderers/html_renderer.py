@@ -1,4 +1,5 @@
 import re 
+import os
 
 from amtools.markdown.elements import *
 from .html_templates import HtmlTemplates
@@ -81,7 +82,8 @@ class HtmlRenderer:
         return str(text)
     
     def render_hyperlink(self, link: Hyperlink) -> str:
-        return HtmlTemplates.a(link.text, link.addr)
+        link_addr = os.path.join(self.cur_dir, link.addr)
+        return HtmlTemplates.a(link.text, link_addr)
 
 
 

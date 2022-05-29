@@ -1,21 +1,15 @@
 import os
 
 from .fsutil import fsutil
+from .file import File
 
-class Directory:
-
+class Directory(File):
     def __init__(self, dir_path: str, rel_path=None):
-        self.dir_path = dir_path
-        self.rel_path = rel_path
+        super().__init__(dir_path, rel_path)
+        self.cur_dir = dir_path
+        self.rel_dir = rel_path
 
-        dir_meta = fsutil.read_file_metadata(os.path.join(dir_path, '_metadata.yaml'))
+        dir_meta = fsutil.read_file_metadata(os.path.join(self.path, '_metadata.yaml'))
         if dir_meta is not None:
             self.metadata = dir_meta
-        else:
-            self.metadata = { }
 
-    def get_menu(self):
-        return self.metadata.get("menu", "menu")
-
-    def get_home(self):
-        return self.metadata.get("home", "home")

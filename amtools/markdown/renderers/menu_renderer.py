@@ -1,3 +1,4 @@
+import os
 
 from amtools.markdown.elements import *
 
@@ -32,27 +33,22 @@ class MenuRenderer(HtmlRenderer):
 
     def render_heading(self, heading: Heading):
         if heading.weight == 1:
-            rendered_title = self.render_inline_text(heading.title)
-            self.title = f"""<h1 id="menu-title"><a href="../">{rendered_title}</a></h1>"""
+            rendered_title = self.render_text_element(heading.title)
+            self.title = f"""<h1 id="menu-title"><a href="{self.cur_dir}">{rendered_title}</a></h1>"""
             return ""
 
         return super().render_heading(heading)
 
     def render_bulleted_list(self, b_list: BulletedList):
         btns = []
-        for btn_info in b_list.items:
-            btn_info = btn_info.strip()
-            close_br = btn_info.index(']')
-            if close_br == -1:
-                btn_text = btn_info
-                btn_addr = ""
-            else:
-                btn_text = btn_info[1:close_br]
-                btn_addr = btn_info[close_br+2:-1]
-            btns.append(self.render_menu_button(btn_text, btn_addr))
+        for btn_text in b_list.items:
+            for el in btn_text.elements:
+                if isinstance(el, Hyperlink):
+                    btns.append(self.render_menu_button(el.text, el.addr))
 
         return '\n'.join(btns)
     
     def render_menu_button(self, btn_text: str, btn_link: str):
-        return f"""<a href="{btn_link}"><button class="menu-btn">{btn_text}</button></a>"""
+        full_link = os.path.join(self.cur_dir, btn_link)
+        return f"""<a href="{full_link}"><button class="menu-btn">{btn_text}</button></a>"""
 
