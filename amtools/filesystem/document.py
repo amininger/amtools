@@ -25,9 +25,6 @@ class Document:
     def get_menu_html(self):
         menu_file = self.metadata.get('menu', 'menu') + '.md'
         menu_path = os.path.join(self.parent.dir_path, menu_file)
-        print("MENU")
-        print(menu_file)
-        print(menu_path)
         md_elements = MarkdownParser.parse_file(menu_path)
         if md_elements is None:
             return None

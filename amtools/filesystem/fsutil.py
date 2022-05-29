@@ -8,11 +8,28 @@ class fsutil:
     """ Contains static methods for interacting with the file system """
 
     @staticmethod
-    def filename2title(filename: str):
+    def filename2title(filename: str) -> str:
         """ Takes the file name and makes it into a more readable title """
         name = os.path.splitext(filename)[0]
         words = re.split('[-_]', name)
         return ' '.join(word.capitalize() for word in words)
+
+    @staticmethod
+    def simplify_path(path: str) -> str:
+        parts = path.split("/")
+        while '.' in parts:
+            parts.remove('.')
+        changes = True
+        while changes:
+            changes = False
+            for i in range(1, len(parts)):
+                if parts[i] == ".." and parts[i-1] != "" and parts[i-1] != "..":
+                    parts.pop(i)
+                    parts.pop(i-1)
+                    changes = True
+                    break
+        return '/'.join(parts)
+
     
     @staticmethod
     def find_file(dir_path: str, name: str) -> str:
