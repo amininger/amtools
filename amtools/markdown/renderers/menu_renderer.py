@@ -18,7 +18,8 @@ def render_menu(logo, title, content):
 
 class MenuRenderer(HtmlRenderer):
 
-    def __init__(self):
+    def __init__(self, cur_dir=""):
+        super().__init__(cur_dir)
         self.logo = ''
         self.title = ''
         self.content = []

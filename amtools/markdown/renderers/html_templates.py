@@ -62,5 +62,7 @@ f"""<p>
 
     italics = lambda text: f"<i>{text}</i>"
 
+    inline_code = lambda text: f"""<span class="inline-code">{text}</span>"""
+
     a = lambda text, addr: f"<a href=\"{addr}\">{text}</a>"
 

@@ -1,4 +1,6 @@
 
+from .inline_text import LineBreak, RawText, InlineText, BoldText, ItalicsText, CodeText
+from .hyperlink import Hyperlink
 from .horizontal_rule import HorizontalRule
 from .heading import Heading
 from .paragraph import Paragraph

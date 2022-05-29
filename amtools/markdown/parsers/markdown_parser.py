@@ -5,11 +5,24 @@ from amtools.markdown.elements import *
 
 r_COMMENT       = re.compile(r"^//")
 r_EMPTY_LINE    = re.compile(r"^[ \t]*$")
+r_BOLD          = re.compile(r"\*\*[^*]+\*\*")
+r_ITALICS       = re.compile(r"_[^_]+_")
+r_INLINE_CODE   = re.compile(r"`[^`]+`")
+r_LINK          = re.compile(r"\[[^]]*\]\([^)]*\)")
+
 r_CODE_BLOCK    = re.compile(r"^```")
 r_HEADING       = re.compile(r"^#{1,6} ")
 r_HRULE         = re.compile(r"^[-=]{3,}$")
 r_BULLETED_LIST = re.compile(r"^[*-] ")
 r_NUMBERED_LIST = re.compile(r"^[0-9]{1,2}\. ")
+
+
+def split_match(text: str, mat, del_front=0, del_end=0) -> (str, str, str):
+    s, e   = mat.start(), mat.end()
+    before = text[:s]
+    inner  = text[s + del_front : e - del_end]
+    after  = text[e:]
+    return (before, inner, after)
 
 class MarkdownParser:
     @staticmethod
@@ -46,7 +59,7 @@ class MarkdownParser:
             # If it is an empty line, only add to paragraphs
             if r_EMPTY_LINE.match(next_line):
                 if elements and isinstance(elements[-1], Paragraph):
-                    elements[-1].add_line(next_line)
+                    elements[-1].add_empty_line()
                 line_reader.skip_line()
                 continue
 
@@ -65,10 +78,14 @@ class MarkdownParser:
 
             # Otherwise, it is a text element, add to a paragraph
             if elements and isinstance(elements[-1], Paragraph):
-                elements[-1].add_line(next_line)
+                elements[-1].add_text(next_line)
             else:
                 elements.append(Paragraph(next_line))
             line_reader.skip_line()
+
+        for el in elements:
+            if isinstance(el, Paragraph):
+                self.parse_paragraph(el)
 
         return elements
 
@@ -95,7 +112,7 @@ class MarkdownParser:
             weight += 1
             line = line[1:]
 
-        title = line.strip()
+        title = self.parse_inline_text(line.strip())
         return Heading(weight, title)
 
 
@@ -132,7 +149,8 @@ class MarkdownParser:
         while not line_reader.at_end():
             next_line = line_reader.peek()
             if r_BULLETED_LIST.match(next_line):
-                items.append(line_reader.read_line()[2:].strip())
+                item_text = line_reader.read_line()[2:].strip()
+                items.append(self.parse_inline_text(item_text))
             elif r_EMPTY_LINE.match(next_line):
                 line_reader.skip_line()
             else:
@@ -145,12 +163,67 @@ class MarkdownParser:
         while not line_reader.at_end():
             next_line = line_reader.peek()
             if r_NUMBERED_LIST.match(next_line):
-                items.append(next_line[next_line.index('.')+2:].strip())
-                line_reader.skip_line()
+                item_text = next_line[next_line.index('.')+2:].strip()
+                items.append(self.parse_inline_text(item_text))
             elif r_EMPTY_LINE.match(next_line):
                 line_reader.skip_line()
             else:
                 break
         
         return NumberedList(items)
+
+    ##############################################################
+    # Inline Text Elements - formatted text
+
+    def parse_paragraph(self, p: Paragraph):
+        """ Will parse each line in the given paragraph as inline text """
+        elements = [ self.parse_inline_text(line) for line in p.lines if len(line) > 0]
+        p.set_elements(elements)
+
+    def parse_inline_text(self, text: str) -> InlineText:
+        """ Will parse a blob of text with inline formatting elements, 
+            such as bold, italics, inline code, links, etc """
+
+        bold_match = re.search(r_BOLD, text)
+        if bold_match is not None:
+            return self.parse_matched_inline_text(text, BoldText, bold_match, 2, 2)
+        
+        italics_match = re.search(r_ITALICS, text)
+        if italics_match is not None:
+            return self.parse_matched_inline_text(text, ItalicsText, italics_match, 1, 1)
+
+        code_match = re.search(r_INLINE_CODE, text)
+        if code_match is not None:
+            return self.parse_matched_inline_text(text, CodeText, code_match, 1, 1)
+
+        link_match = re.search(r_LINK, text)
+        if link_match is not None:
+            return self.parse_hyperlink(text, link_match)
+
+        return RawText(text)
+
+    def parse_matched_inline_text(self, text: str, TextClass, mat, del_front: int, del_end: int) -> InlineText:
+        """ Given a regex match in a text string, splits into the three parts
+                (before, inner, after)
+            and parses each one before returning an InlineText containing all three """
+        before, inner, after = split_match(text, mat, del_front, del_end)
+        return InlineText(
+            self.parse_inline_text(before), 
+            TextClass(self.parse_inline_text(inner)),
+            self.parse_inline_text(after) 
+        )
+
+    def parse_hyperlink(self, text: str, mat):
+        before, inner, after = split_match(text, mat, 0, 0)
+
+        close_br = inner.index(']')
+        link_text = inner[1:close_br]
+        link_addr = inner[close_br+2:-1]
+        return InlineText(
+            self.parse_inline_text(before), 
+            Hyperlink(link_text, link_addr),
+            self.parse_inline_text(after) 
+        )
+
+
 
