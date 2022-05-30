@@ -12,6 +12,7 @@ class HtmlRenderer:
         self.renderers = { }
         self.renderers[HorizontalRule] = self.render_horizontal_rule
         self.renderers[Heading]        = self.render_heading
+        self.renderers[Image]          = self.render_image
         self.renderers[TaskList]       = self.render_task_list
         self.renderers[BulletedList]   = self.render_bulleted_list
         self.renderers[NumberedList]   = self.render_numbered_list
@@ -110,9 +111,18 @@ class HtmlRenderer:
     def render_hyperlink(self, link: Hyperlink) -> str:
         link_text = self.render_text_element(link.text)
         link_addr = link.addr
-        if not link_addr.startswith("http") and not link_addr.startswith("www"):
+        if not link_addr.startswith("http") and not link_addr.startswith("www") and not link_addr.startswith("/"):
             link_addr = os.path.join(self.cur_dir, link_addr)
         return HtmlTemplates.a(link_text, link_addr)
+    
+    def render_image(self, img: Image) -> str:
+        if not img.filename.startswith("http") and not img.filename.startswith("www") and not img.filename.startswith("/"):
+            filename = os.path.join(self.cur_dir, img.filename)
+            filename = filename.replace("/ucbc/", "/ucbc-media/")
+        if img.width is not None:
+            return HtmlTemplates.img(filename, img.alt_text, style=f"width: {img.width};")
+        else:
+            return HtmlTemplates.img(filename, img.alt_text)
 
 
 

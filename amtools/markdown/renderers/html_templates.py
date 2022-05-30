@@ -111,6 +111,10 @@ f"""<table{info(**kwargs)}>
         return f"<blockquote{info(**kwargs)}>\n{indent(text, 2)}\n</blockquote>"
 
     @staticmethod
+    def img(filename, alt_text, **kwargs):
+        return f"<img{info(**kwargs)} src=\"{filename}\" alt=\"{alt_text}\">"
+
+    @staticmethod
     def p(text, **kwargs):
         return f"<p{info(**kwargs)}>\n{indent(text, 2)}\n</p>"
 

@@ -9,7 +9,13 @@ There is also a [link](https://www.google.com).
 **bold paragraph over multiple
 lines will keep** going
 
-## Here is a header 2
+## Testing an image
+Here's a giraffe!!!
+
+![Giraffe|200](giraffe.jpg)
+![Giraffe|50%](giraffe.jpg)
+![Giraffe](giraffe.jpg)
+
 ### Testing a bulleted list
 * List element **bold**
 * List _italics_

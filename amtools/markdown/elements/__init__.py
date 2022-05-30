@@ -4,6 +4,7 @@ from .inline_text import LineBreak, RawText, InlineText, BoldText, ItalicsText, 
 from .hyperlink import Hyperlink
 from .horizontal_rule import HorizontalRule
 from .heading import Heading
+from .image import Image
 from .paragraph import Paragraph
 from .code_block import CodeBlock
 from .blockquote import BlockQuote

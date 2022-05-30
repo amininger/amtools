@@ -13,10 +13,11 @@ r_INLINE_CODE   = re.compile(r"`[^`]+`")
 r_STRIKETHROUGH = re.compile(r"~~[^~]+~~")
 r_HIGHLIGHT     = re.compile(r"==[^=]+==")
 r_TAG           = re.compile(r"(^| )\#[a-zA-Z0-9_-]+")
-r_LINK          = re.compile(r"\[[^]]*\]\([^)]*\)")
+r_LINK          = re.compile(r"\[[^]]*\]\([^)]+\)")
 
 r_HEADING       = re.compile(r"^#{1,6} ")
 r_HRULE         = re.compile(r"^[-=]{3,}$")
+r_IMAGE         = re.compile(r"^!\[[^]]*\]\([^)]+\)")
 
 r_TABLE         = re.compile(r"^\|([^|]+\|)+ *$")
 r_TASK_LIST     = re.compile(r"^- \[[ ?xX]\] ")
@@ -80,6 +81,7 @@ class MarkdownParser:
         self.line_matchers = [ ]
         self.line_matchers.append(LineElementMatcher(r_HEADING, self.parse_heading))
         self.line_matchers.append(LineElementMatcher(r_HRULE,   self.parse_hrule))
+        self.line_matchers.append(LineElementMatcher(r_IMAGE,   self.parse_image))
 
         self.text_matchers = [ ]
         self.text_matchers.append(TextElementMatcher(r_BOLD, BoldText, 2, 2))
@@ -149,6 +151,8 @@ class MarkdownParser:
                 return matcher.parser(line)
         return None
 
+    def parse_hrule(self, line: str) -> HorizontalRule:
+        return HorizontalRule()
 
     def parse_heading(self, line: str) -> Heading:
         weight = 0
@@ -159,8 +163,16 @@ class MarkdownParser:
         title = self.parse_inline_text(line.strip())
         return Heading(weight, title)
 
-    def parse_hrule(self, line: str) -> HorizontalRule:
-        return HorizontalRule()
+    def parse_image(self, line: str) -> Heading:
+        close_br = line.index(']')
+        alt_text = line[2:close_br]
+        filename = line[close_br+2:-1]
+        alt_parts = alt_text.split("|")
+        params = None
+        if len(alt_parts) == 2:
+            alt_text, params = alt_parts
+
+        return Image(filename, alt_text, params)
 
 
 
