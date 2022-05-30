@@ -1,0 +1,42 @@
+from typing import List
+
+from .markdown_element import MarkdownElement
+from .inline_text import InlineText
+
+class Table:
+    def __init__(self, headings: List[InlineText]):
+        self.headings = headings
+        self.num_cols = len(self.headings)
+        self.rows = []
+        self.widths = [ len(h.raw_text()) for h in self.headings ]
+
+    def add_row(self, row: List[InlineText]) -> None:
+        new_row = []
+        for i in range(self.num_cols):
+            if i < len(row):
+                new_row.append(row[i])
+            else:
+                new_row.append(InlineText())
+            self.widths[i] = max(self.widths[i], len(new_row[i].raw_text()))
+        self.rows.append(new_row)
+
+    def print_headings(self) -> str:
+        return "| " + " | ".join(self.headings[i].raw_text().center(w) for i, w in enumerate(self.widths)) + " |"
+
+    def print_hline(self) -> str:
+        return "+" + "+".join( "-"*(w+2) for w in self.widths) + "+"
+
+    def print_row(self, row) -> str:
+        return "| " + " | ".join(row[i].raw_text().ljust(w) for i, w in enumerate(self.widths)) + " |"
+
+    def __str__(self) -> str:
+        lines = []
+        lines.append(self.print_hline())
+        lines.append(self.print_headings())
+        lines.append(self.print_hline())
+        for row in self.rows:
+            lines.append(self.print_row(row))
+        lines.append(self.print_hline())
+
+        return "\n".join(lines)
+

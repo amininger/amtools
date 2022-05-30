@@ -55,3 +55,14 @@ def hello():
 
 - [?] Unknown
 
+### Testing a Table
+
+|Col 1|   Col 2 |    Col 3    | Col 4 | col 5 |
+|---|  --- | ---------------| ---|---|
+| | | | | |
+|only one|
+|    spacing     |is|      key| to | victory |
+| Aaron | | Mininger | Doctor |
+|first|last| | 
+
+

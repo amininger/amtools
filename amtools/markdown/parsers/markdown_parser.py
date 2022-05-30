@@ -12,11 +12,13 @@ r_ITALICS       = re.compile(r"_[^_]+_")
 r_INLINE_CODE   = re.compile(r"`[^`]+`")
 r_STRIKETHROUGH = re.compile(r"~~[^~]+~~")
 r_HIGHLIGHT     = re.compile(r"==[^=]+==")
+r_TAG           = re.compile(r"(^| )\#[a-zA-Z0-9_-]+")
 r_LINK          = re.compile(r"\[[^]]*\]\([^)]*\)")
 
 r_HEADING       = re.compile(r"^#{1,6} ")
 r_HRULE         = re.compile(r"^[-=]{3,}$")
 
+r_TABLE         = re.compile(r"^\|([^|]+\|)+ *$")
 r_TASK_LIST     = re.compile(r"^- \[[ ?xX]\] ")
 r_BULLETED_LIST = re.compile(r"^[*-] ")
 r_NUMBERED_LIST = re.compile(r"^[0-9]{1,2}\. ")
@@ -73,6 +75,7 @@ class MarkdownParser:
         self.block_matchers.append(BlockElementMatcher(r_TASK_LIST,     self.parse_task_list))
         self.block_matchers.append(BlockElementMatcher(r_BULLETED_LIST, self.parse_bulleted_list))
         self.block_matchers.append(BlockElementMatcher(r_NUMBERED_LIST, self.parse_numbered_list))
+        self.block_matchers.append(BlockElementMatcher(r_TABLE,         self.parse_table))
 
         self.line_matchers = [ ]
         self.line_matchers.append(LineElementMatcher(r_HEADING, self.parse_heading))
@@ -188,7 +191,8 @@ class MarkdownParser:
         """ Reads until the end of the block quote and returns a BlockQuote object """
         block_quote = BlockQuote()
         while not line_reader.at_end() and r_BLOCK_QUOTE.match(line_reader.peek()):
-            block_quote.add_line(line_reader.read_line()[2:])
+            line = self.parse_inline_text(line_reader.read_line()[2:])
+            block_quote.add_line(line)
         return block_quote
 
     def parse_task_list(self, line_reader: LineReader) -> TaskList:
@@ -240,6 +244,21 @@ class MarkdownParser:
         
         return NumberedList(items)
 
+    def parse_table(self, line_reader: LineReader) -> Table:
+        headings = line_reader.read_line().split("|")[1:-1]
+        table = Table([self.parse_inline_text(heading.strip()) for heading in headings])
+
+        line_reader.skip_line()
+
+        while not line_reader.at_end():
+            next_line = line_reader.peek()
+            if not r_TABLE.match(next_line):
+                break
+            cols = line_reader.read_line().split("|")[1:-1]
+            table.add_row([ self.parse_inline_text(col.strip()) for col in cols ])
+
+        return table
+
     ##############################################################
     # Inline Text Elements - formatted text
 
@@ -260,6 +279,11 @@ class MarkdownParser:
         link_match = re.search(r_LINK, text)
         if link_match is not None:
             return self.parse_hyperlink(text, link_match)
+
+        tag_match = re.search(r_TAG, text)
+        if tag_match is not None:
+            return self.parse_tag(text, tag_match)
+
 
         return RawText(text)
 
@@ -286,6 +310,18 @@ class MarkdownParser:
         return InlineText(
             self.parse_inline_text(before), 
             Hyperlink(self.parse_inline_text(link_text), link_addr),
+            self.parse_inline_text(after) 
+        )
+
+    def parse_tag(self, text: str, re_match: re.Match) -> InlineText:
+        """ Given a regex match for a tag, parses the before/after text
+                and creates a Tag with the inner part
+            returns an InlineText containing the three parts """
+        before, inner, after = split_match(text, re_match, 0, 0)
+        tag_title = inner.strip()[1:]
+        return InlineText(
+            self.parse_inline_text(before), 
+            Tag(tag_title), 
             self.parse_inline_text(after) 
         )
 

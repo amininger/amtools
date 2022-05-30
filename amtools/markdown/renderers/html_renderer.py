@@ -17,6 +17,7 @@ class HtmlRenderer:
         self.renderers[NumberedList]   = self.render_numbered_list
         self.renderers[CodeBlock]      = self.render_code_block
         self.renderers[BlockQuote]     = self.render_block_quote
+        self.renderers[Table]          = self.render_table
         self.renderers[Paragraph]      = self.render_paragraph
         self.renderers[InlineText]     = self.render_text_element
 
@@ -55,7 +56,7 @@ class HtmlRenderer:
 
     def render_task_list(self, t_list: TaskList) -> str:
         list_items = '\n'.join(self.render_task_list_item(li) for li in t_list.items)
-        return HtmlTemplates.unordered_list(list_items, classes="contains-task-list")
+        return HtmlTemplates.unordered_list(list_items, cls="contains-task-list")
 
     def render_task_list_item(self, li: TaskItem) -> str:
         item_text = self.render_text_element(li.text)
@@ -63,20 +64,28 @@ class HtmlRenderer:
     
     def render_code_block(self, block: CodeBlock) -> str:
         compacted_block = block.text.replace('\n', NL_PLACEHOLDER)
-        return HtmlTemplates.pre_code(compacted_block)
+        code_block = HtmlTemplates.code(compacted_block)
+        return HtmlTemplates.pre(code_block)
 
     def render_block_quote(self, block: BlockQuote) -> str:
-        rendered_text = self.render_text_element(block.text)
-        return HtmlTemplates.blockquote(rendered_text)
+        rendered_text = "\n".join(self.render_text_element(line) for line in block.lines)
+        return HtmlTemplates.blockquote(HtmlTemplates.p(rendered_text))
+
+    def render_table(self, table: Table) -> str:
+        headings = [ self.render_text_element(h) for h in table.headings ]
+        rows = [ [ self.render_text_element(c) for c in row ] for row in table.rows ]
+        return HtmlTemplates.table(headings, rows, table.widths)
 
     def render_paragraph(self, par: Paragraph) -> str:
         rendered_lines = [ self.render_text_element(el) for el in par.elements ]
         rendered_text = '\n<br>\n'.join(rendered_lines)
         return HtmlTemplates.p(rendered_text)
 
-    def render_text_element(self, text: str) -> str:
+    def render_text_element(self, text) -> str:
         if isinstance(text, RawText):
             return text.raw_text()
+        if isinstance(text, Tag):
+            return self.render_tag(text)
         if isinstance(text, Hyperlink):
             return self.render_hyperlink(text)
         if isinstance(text, InlineText):
@@ -94,6 +103,9 @@ class HtmlRenderer:
             return rendered_children
 
         return str(text)
+
+    def render_tag(self, tag: Tag) -> str:
+        return HtmlTemplates.a("#" + tag.title, "", cls="tag red-tag")
     
     def render_hyperlink(self, link: Hyperlink) -> str:
         link_text = self.render_text_element(link.text)

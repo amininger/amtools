@@ -38,6 +38,17 @@ class RawText(MarkdownElement):
     def __str__(self) -> str:
         return "\"" + self.text + "\""
 
+class Tag(InlineText):
+    def __init__(self, title: str):
+        self.title = title
+
+    def raw_text(self) -> str:
+        return self.title
+
+    def __str__(self) -> str:
+        return "[#" + self.title + "]"
+
+
 class BoldText(InlineText):
     def __str__(self) -> str:
         return "[B:" + " ".join(map(str, self.elements)) + "]"
@@ -57,6 +68,7 @@ class StrikethroughText(InlineText):
 class HighlightText(InlineText):
     def __str__(self) -> str:
         return "[H:" + " ".join(map(str, self.elements)) + "]"
+
 
     
 

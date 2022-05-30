@@ -3,11 +3,11 @@ def indent(lines, n=1):
     spaces = "  "*n
     return spaces + lines.replace("\n", "\n" + spaces)
 
-def open_el(el_name: str, id:str=None, classes:str=None):
-    id_str = '' if id is None else f" id='{id}'"
-    cls_str = '' if classes is None else f" class='{classes}'"
-    return f"<{el_name}{id_str}{cls_str}>"
-
+def info(**kwargs):
+    if 'cls' in kwargs:
+        kwargs['class'] = kwargs['cls']
+        del kwargs['cls']
+    return "".join(f" {k}=\"{v}\"" for k, v in kwargs.items())
 
 class HtmlTemplates:
 
@@ -28,54 +28,115 @@ f"""<!DOCTYPE html>
 </body>
 </html>"""
 
-    def div(body, id=None, classes=None):
-        return f"{open_el('div', id, classes)}\n{indent(body, 2)}\n</div>"
+    @staticmethod
+    def div(body, **kwargs):
+        return f"<div{info(**kwargs)}>\n{indent(body, 2)}\n</div>"
 
-    def oneline_div(body, id=None, classes=None):
-        return f"{open_el('div', id, classes)}{body}</div>"
+    @staticmethod
+    def oneline_div(body, **kwargs):
+        return f"<div{info(**kwargs)}>{body}</div>"
 
-    oneline_div = lambda classes, text: f"<div class={classes}>{text}</div>"
+    @staticmethod
+    def span(inner, **kwargs):
+        return f"<span{info(**kwargs)}>{inner}</span>"
 
-    span = lambda classes, text: f"<span class={classes}>{text}</span>"
+    @staticmethod
+    def hr(**kwargs):
+        return f"<hr{info(**kwargs)}>"
 
-    hr = lambda: "<hr>"
+    @staticmethod
+    def heading(lvl, title, **kwargs):
+        h_ = "h" + str(lvl)
+        return f"<{h_}{info(**kwargs)}>{title}</{h_}>"
 
-    heading = lambda lvl, title: f"<h{lvl}> {title} </h{lvl}>"
+    @staticmethod
+    def unordered_list(list_items, **kwargs):
+        return f"<ul{info(**kwargs)}>\n{indent(list_items, 2)}\n</ul>"
 
-    def unordered_list(list_items, id=None, classes=None):
-        return f"{open_el('ul', id, classes)}\n{indent(list_items, 2)}\n</ul>"
+    @staticmethod
+    def ordered_list(list_items, **kwargs):
+        return f"<ol{info(**kwargs)}>\n{indent(list_items, 2)}\n</ol>"
 
-    def ordered_list(list_items, id=None, classes=None):
-        return f"{open_el('ol', id, classes)}\n{indent(list_items, 2)}\n</ol>"
+    @staticmethod
+    def list_item(text, **kwargs):
+        return f"<li{info(**kwargs)}>{text}</li>"
 
-    def list_item(text, id=None, classes=None):
-        return f"{open_el('li', id, classes)}{text}</li>"
-
+    @staticmethod
     def task_list_item(text, task_symb, is_checked):
         if is_checked:
             return f"<li data-task='{task_symb}' class='task-list-item is-checked'><input checked='' type='checkbox' class='task-list-item-checkbox'>{text}</li>"
         else:
             return f"<li data-task='{task_symb}' class='task-list-item'><input type='checkbox' class='task-list-item-checkbox'>{text}</li>"
 
-    pre_code = lambda text: f"<pre><code>{text}</code></pre>"
+    @staticmethod
+    def table(headings, rows, widths, **kwargs):
+        head = HtmlTemplates.tr(headings, widths, True)
+        body = "\n".join(HtmlTemplates.tr(row, widths, False) for row in rows)
+        return \
+f"""<table{info(**kwargs)}>
+  <thead>
+{indent(head, 4)}
+  </thead>
+  <tbody>
+{indent(body, 4)}
+  </tbody>
+</table>
+"""
 
-    blockquote = lambda text: f"<blockquote>{text}</blockquote>"
+    @staticmethod
+    def tr(row, widths, is_heading):
+        make_cell = HtmlTemplates.th if is_heading else HtmlTemplates.td
 
-    p = lambda text: \
-f"""<p>
-{indent(text, 2)}
-</p>"""
+        cols = []
+        for i in range(len(row)):
+            cols.append(make_cell(row[i], style=f"flex: {widths[i]};"))
+        col_text = '\n'.join(cols)
+        return f"<tr>\n{indent(col_text, 2)}\n</tr>"
 
-    a = lambda text, addr: f"<a href=\"{addr}\">{text}</a>"
+    @staticmethod
+    def th(text, **kwargs):
+        return f"<th{info(**kwargs)}>{text}</th>"
 
-    bold = lambda text: f"<b>{text}</b>"
+    @staticmethod
+    def td(text, **kwargs):
+        return f"<td{info(**kwargs)}>{text}</td>"
 
-    italics = lambda text: f"<i>{text}</i>"
 
-    code = lambda text: f"""<code>{text}</code>"""
+    @staticmethod
+    def pre(inner, **kwargs):
+        return f"<pre{info(**kwargs)}>{inner}</pre>"
 
-    delete = lambda text: f"""<del>{text}</del>"""
+    @staticmethod
+    def blockquote(text, **kwargs):
+        return f"<blockquote{info(**kwargs)}>\n{indent(text, 2)}\n</blockquote>"
 
-    mark = lambda text: f"""<mark>{text}</mark>"""
+    @staticmethod
+    def p(text, **kwargs):
+        return f"<p{info(**kwargs)}>\n{indent(text, 2)}\n</p>"
+
+    @staticmethod
+    def a(text, addr, **kwargs):
+        href=f"href=\"{addr}\""
+        return f"<a href=\"{addr}\"{info(**kwargs)}>{text}</a>"
+
+    @staticmethod
+    def bold(text, **kwargs):
+        return f"<b{info(**kwargs)}>{text}</b>"
+
+    @staticmethod
+    def italics(text, **kwargs):
+        return f"<i{info(**kwargs)}>{text}</i>"
+
+    @staticmethod
+    def code(text, **kwargs):
+        return f"<code{info(**kwargs)}>{text}</code>"
+
+    @staticmethod
+    def delete(text, **kwargs):
+        return f"<del{info(**kwargs)}>{text}</del>"
+
+    @staticmethod
+    def mark(text, **kwargs):
+        return f"<mark{info(**kwargs)}>{text}</mark>"
 
 
