@@ -3,6 +3,12 @@ def indent(lines, n=1):
     spaces = "  "*n
     return spaces + lines.replace("\n", "\n" + spaces)
 
+def open_el(el_name: str, id:str=None, classes:str=None):
+    id_str = '' if id is None else f" id='{id}'"
+    cls_str = '' if classes is None else f" class='{classes}'"
+    return f"<{el_name}{id_str}{cls_str}>"
+
+
 class HtmlTemplates:
 
     def document(title, body, css_files=[], js_files=[]):
@@ -23,15 +29,10 @@ f"""<!DOCTYPE html>
 </html>"""
 
     def div(body, id=None, classes=None):
-        id_str = '' if id is None else f"id='{id}'"
-        cls_str = '' if classes is None else f"class='{classes}'"
-        return \
-f"""<div {id_str} {cls_str} >
-{indent(body, 2)}
-</div>"""
+        return f"{open_el('div', id, classes)}\n{indent(body, 2)}\n</div>"
 
-    code = lambda text: f"<pre><code>{text}</code></pre>"
-
+    def oneline_div(body, id=None, classes=None):
+        return f"{open_el('div', id, classes)}{body}</div>"
 
     oneline_div = lambda classes, text: f"<div class={classes}>{text}</div>"
 
@@ -41,28 +42,40 @@ f"""<div {id_str} {cls_str} >
 
     heading = lambda lvl, title: f"<h{lvl}> {title} </h{lvl}>"
 
-    unordered_list = lambda list_items: \
-f"""<ul>
-{indent(list_items, 2)}
-</ul>"""
+    def unordered_list(list_items, id=None, classes=None):
+        return f"{open_el('ul', id, classes)}\n{indent(list_items, 2)}\n</ul>"
 
-    ordered_list = lambda list_items: \
-f"""<ol>
-{indent(list_items, 2)}
-</ol>"""
+    def ordered_list(list_items, id=None, classes=None):
+        return f"{open_el('ol', id, classes)}\n{indent(list_items, 2)}\n</ol>"
 
-    list_item = lambda text: f"<li>{text}</li>"
+    def list_item(text, id=None, classes=None):
+        return f"{open_el('li', id, classes)}{text}</li>"
+
+    def task_list_item(text, task_symb, is_checked):
+        if is_checked:
+            return f"<li data-task='{task_symb}' class='task-list-item is-checked'><input checked='' type='checkbox' class='task-list-item-checkbox'>{text}</li>"
+        else:
+            return f"<li data-task='{task_symb}' class='task-list-item'><input type='checkbox' class='task-list-item-checkbox'>{text}</li>"
+
+    pre_code = lambda text: f"<pre><code>{text}</code></pre>"
+
+    blockquote = lambda text: f"<blockquote>{text}</blockquote>"
 
     p = lambda text: \
 f"""<p>
 {indent(text, 2)}
 </p>"""
 
+    a = lambda text, addr: f"<a href=\"{addr}\">{text}</a>"
+
     bold = lambda text: f"<b>{text}</b>"
 
     italics = lambda text: f"<i>{text}</i>"
 
-    inline_code = lambda text: f"""<span class="inline-code">{text}</span>"""
+    code = lambda text: f"""<code>{text}</code>"""
 
-    a = lambda text, addr: f"<a href=\"{addr}\">{text}</a>"
+    delete = lambda text: f"""<del>{text}</del>"""
+
+    mark = lambda text: f"""<mark>{text}</mark>"""
+
 

@@ -33,6 +33,14 @@ class LineReader:
         next_line = self.peeked_line
         self.peeked_line = self._next_line()
         return next_line
+    
+    def read_line_if(self, test) -> str:
+        """ Returns the next line if the next line matches the given test
+                (a function that takes a line and returns True/False) """
+        if self.peeked_line is not None and test(self.peeked_line):
+            return self.read_line()
+        return None
+
 
     def read_lines(self, num_lines=1, skip_empty=False) -> [str]:
         """ Returns a list of strings, the next num_lines in the reader

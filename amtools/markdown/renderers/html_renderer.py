@@ -9,6 +9,16 @@ NL_PLACEHOLDER = '_#!_NL_!#_'
 class HtmlRenderer:
     def __init__(self, cur_dir=""):
         self.cur_dir = cur_dir
+        self.renderers = { }
+        self.renderers[HorizontalRule] = self.render_horizontal_rule
+        self.renderers[Heading]        = self.render_heading
+        self.renderers[TaskList]       = self.render_task_list
+        self.renderers[BulletedList]   = self.render_bulleted_list
+        self.renderers[NumberedList]   = self.render_numbered_list
+        self.renderers[CodeBlock]      = self.render_code_block
+        self.renderers[BlockQuote]     = self.render_block_quote
+        self.renderers[Paragraph]      = self.render_paragraph
+        self.renderers[InlineText]     = self.render_text_element
 
     def render_markdown_elements(self, elements: list) -> str:
         """ Renders a list of markdown elements into a string of html """
@@ -18,23 +28,11 @@ class HtmlRenderer:
     
     def render_element(self, elem) -> str:
         """ Renders a single markdown element as html and returns it """
-        if isinstance(elem, HorizontalRule):
-            return self.render_horizontal_rule(elem)
-        elif isinstance(elem, Heading):
-            return self.render_heading(elem)
-        elif isinstance(elem, BulletedList):
-            return self.render_bulleted_list(elem)
-        elif isinstance(elem, NumberedList):
-            return self.render_numbered_list(elem)
-        elif isinstance(elem, CodeBlock):
-            return self.render_code_block(elem)
-        elif isinstance(elem, Paragraph):
-            return self.render_paragraph(elem)
-        elif isinstance(elem, InlineText):
-            return self.render_text_element(elem)
-                
-        return str(elem)
-
+        if type(elem) in self.renderers:
+            return self.renderers[type(elem)](elem)
+        else:
+            print("HtmlRenderer.render_element: unknown element type " + str(type(elem)))
+            return str(elem)
 
     def render_horizontal_rule(self, hr: HorizontalRule) -> str:
         return HtmlTemplates.hr()
@@ -54,10 +52,22 @@ class HtmlRenderer:
     def render_list_item(self, li: str) -> str:
         rendered_text = self.render_text_element(li)
         return HtmlTemplates.list_item(rendered_text)
+
+    def render_task_list(self, t_list: TaskList) -> str:
+        list_items = '\n'.join(self.render_task_list_item(li) for li in t_list.items)
+        return HtmlTemplates.unordered_list(list_items, classes="contains-task-list")
+
+    def render_task_list_item(self, li: TaskItem) -> str:
+        item_text = self.render_text_element(li.text)
+        return HtmlTemplates.task_list_item(item_text, li.symbol(), li.is_checked())
     
     def render_code_block(self, block: CodeBlock) -> str:
         compacted_block = block.text.replace('\n', NL_PLACEHOLDER)
-        return HtmlTemplates.code(compacted_block)
+        return HtmlTemplates.pre_code(compacted_block)
+
+    def render_block_quote(self, block: BlockQuote) -> str:
+        rendered_text = self.render_text_element(block.text)
+        return HtmlTemplates.blockquote(rendered_text)
 
     def render_paragraph(self, par: Paragraph) -> str:
         rendered_lines = [ self.render_text_element(el) for el in par.elements ]
@@ -70,20 +80,27 @@ class HtmlRenderer:
         if isinstance(text, Hyperlink):
             return self.render_hyperlink(text)
         if isinstance(text, InlineText):
-            rendered_children = "".join(self.render_text_element(el) for el in text.elements)
+            rendered_children = " ".join(self.render_text_element(el) for el in text.elements)
             if isinstance(text, BoldText):
                 return HtmlTemplates.bold(rendered_children)
             if isinstance(text, ItalicsText):
                 return HtmlTemplates.italics(rendered_children)
             if isinstance(text, CodeText):
-                return HtmlTemplates.inline_code(rendered_children)
+                return HtmlTemplates.code(rendered_children)
+            if isinstance(text, StrikethroughText):
+                return HtmlTemplates.delete(rendered_children)
+            if isinstance(text, HighlightText):
+                return HtmlTemplates.mark(rendered_children)
             return rendered_children
 
         return str(text)
     
     def render_hyperlink(self, link: Hyperlink) -> str:
-        link_addr = os.path.join(self.cur_dir, link.addr)
-        return HtmlTemplates.a(link.text, link_addr)
+        link_text = self.render_text_element(link.text)
+        link_addr = link.addr
+        if not link_addr.startswith("http") and not link_addr.startswith("www"):
+            link_addr = os.path.join(self.cur_dir, link_addr)
+        return HtmlTemplates.a(link_text, link_addr)
 
 
 

@@ -1,7 +1,7 @@
-
+from .markdown_element import MarkdownElement
 from .inline_text import InlineText, LineBreak
 
-class Paragraph:
+class Paragraph(MarkdownElement):
     """ An entire paragraph of text (all text is wrapped in paragraphs) """
 
     def __init__(self, text: str):

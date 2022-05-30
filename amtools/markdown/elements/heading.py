@@ -1,7 +1,8 @@
 
+from .markdown_element import MarkdownElement
 from .inline_text import InlineText
 
-class Heading:
+class Heading(MarkdownElement):
     """ A heading in a markdown document """
 
     def __init__(self, weight: int, title: InlineText):

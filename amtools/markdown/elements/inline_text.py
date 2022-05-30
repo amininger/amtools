@@ -1,10 +1,12 @@
 import re
 
+from .markdown_element import MarkdownElement
+
 class LineBreak:
     def __str__(self) -> str:
         return "[BR]"
 
-class InlineText:
+class InlineText(MarkdownElement):
     def __init__(self, *elements):
         self.elements = []
         for el in elements:
@@ -26,7 +28,7 @@ class InlineText:
     def __str__(self) -> str:
         return "[T:" + " ".join(map(str, self.elements)) + "]"
 
-class RawText:
+class RawText(MarkdownElement):
     def __init__(self, text: str):
         self.text = text
 
@@ -47,6 +49,14 @@ class ItalicsText(InlineText):
 class CodeText(InlineText):
     def __str__(self) -> str:
         return "[C:" + " ".join(map(str, self.elements)) + "]"
+
+class StrikethroughText(InlineText):
+    def __str__(self) -> str:
+        return "[--" + " ".join(map(str, self.elements)) + "--]"
+
+class HighlightText(InlineText):
+    def __str__(self) -> str:
+        return "[H:" + " ".join(map(str, self.elements)) + "]"
 
     
 

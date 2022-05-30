@@ -1,28 +1,25 @@
 This is my test file
 
+// comments
 # Here is a header
 
-subtext
-
-## Here is a header 2
-
-// comments
-## Here is a header 2
-###  Header 3
-* List element **bold**
-* List _italics_
-
-* Another
-
-* And another
-
-# More stuff
-
+Here is a sample paragraph with **bold** _italics_ ==highlighted==
+~~striked~~ and `coded` text. 
+There is also a [link](https://www.google.com). 
 **bold paragraph over multiple
 lines will keep** going
 
-Here is a paragraph    
-With lines for a line break
+## Here is a header 2
+### Testing a bulleted list
+* List element **bold**
+* List _italics_
+
+
+* List ~~strikethrough~~
+
+* List ==highlight==
+
+### Testing a numbered list
 
 4. What about some numbers?
 1. Will this work?
@@ -33,6 +30,7 @@ With lines for a line break
 ---
 // comments
 
+### Testing a code block
 ```
 here
   is some 
@@ -41,8 +39,19 @@ def hello():
    print("HI")
 ```
 
-// comments here
+### Testing a block quote
 
-And here is a paragraph with `inline` monospace code
+> Fourscore and seven years ago our fathers brought forth on this continent,
+> a new nation, conceived in Liberty, 
+> and dedicated to the proposition that all men are created equal.
+> **Abraham Lincoln, 1864**
 
-# Even more stuff
+### Testing a task list
+
+- [ ] Incomplete ~~strike~~
+
+- [x] Complete **bold**
+- [X] Complete _italics_
+
+- [?] Unknown
+
