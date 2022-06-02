@@ -1,37 +1,44 @@
 import os
 
 from amtools.markdown.parsers import MarkdownParser
-from amtools.markdown.renderers import MenuRenderer
 
 from .fsutil import fsutil
 
+class FileContext:
+    def __init__(self, working_dir: str='', url_path: str='/', media_path: str='/media'):
+        """ File paths are relative to some root directory
+            A FileContext contains different options for the root path
+            working_dir : An absolute filesystem path to the root directory
+            url_path    : A path prefix for resolving website links
+            media_path  : A path prefix for media queries """
+
+        self.working_dir = working_dir
+        self.url_path    = url_path
+        self.media_path  = media_path
+
+    def get_local(self, path: str) -> str:
+        return fsutil.simplify_path(os.path.join(self.working_dir, path))
+
+    def get_url(self, path: str) -> str:
+        return fsutil.simplify_path(os.path.join(self.url_path, path))
+
+    def get_media_url(self, path: str) -> str:
+        return fsutil.simplify_path(os.path.join(self.media_path, path))
+
 class File:
-    def __init__(self, path: str, rel_path=None):
+    def __init__(self, path: str, context: FileContext):
         self.path     = path
-        self.cur_dir  = os.path.dirname(path)
-        self.rel_path = rel_path
-        self.rel_dir  = None if rel_path is None else os.path.dirname(rel_path)
+        self.dir      = os.path.dirname(path)
+        self.context  = context
         self.metadata = { }
 
+    def get_local_path(self):
+        return self.context.get_local(self.path)
+
     def get_home(self):
-        return self.metadata.get("home", "home")
+        home_file = os.path.join(self.dir, self.metadata.get("home", "home.md"))
+        return fsutil.simplify_path(home_file)
 
     def get_menu(self):
-        return self.metadata.get("menu", "menu")
-
-    def get_menu_html(self):
-        menu_file = self.get_menu() + '.md'
-        menu_path = os.path.join(self.cur_dir, menu_file)
-        md_elements = MarkdownParser.parse_file(menu_path)
-        if md_elements is None:
-            return None
-
-        if self.rel_dir is None:
-            menu_dir = os.path.dirname(menu_path)
-        else:
-            menu_dir = os.path.dirname(os.path.join(self.rel_dir, menu_file))
-
-        menu_dir = fsutil.simplify_path(menu_dir)
-        renderer = MenuRenderer(menu_dir)
-        return renderer.render_markdown_elements(md_elements)
-
+        menu_file = os.path.join(self.dir, self.metadata.get("menu", "menu.md"))
+        return fsutil.simplify_path(menu_file)

@@ -1,14 +1,15 @@
 import re 
 import os
 
+from amtools.filesystem import FileContext
 from amtools.markdown.elements import *
 from .html_templates import HtmlTemplates
 
 NL_PLACEHOLDER = '_#!_NL_!#_'
 
 class HtmlRenderer:
-    def __init__(self, cur_dir=""):
-        self.cur_dir = cur_dir
+    def __init__(self, context: FileContext):
+        self.context = context
         self.renderers = { }
         self.renderers[HorizontalRule] = self.render_horizontal_rule
         self.renderers[Heading]        = self.render_heading
@@ -112,17 +113,18 @@ class HtmlRenderer:
         link_text = self.render_text_element(link.text)
         link_addr = link.addr
         if not link_addr.startswith("http") and not link_addr.startswith("www") and not link_addr.startswith("/"):
-            link_addr = os.path.join(self.cur_dir, link_addr)
+            link_addr = self.context.get_url(link_addr)
         return HtmlTemplates.a(link_text, link_addr)
     
     def render_image(self, img: Image) -> str:
+        img_url = img.filename
         if not img.filename.startswith("http") and not img.filename.startswith("www") and not img.filename.startswith("/"):
-            filename = os.path.join(self.cur_dir, img.filename)
-            filename = filename.replace("/ucbc/", "/ucbc-media/")
+            img_url = self.context.get_media_url(img.filename)
         if img.width is not None:
-            return HtmlTemplates.img(filename, img.alt_text, style=f"width: {img.width};")
+            img_width = img.width if '%' in img.width else img.width + "px"
+            return HtmlTemplates.img(img_url, img.alt_text, style=f"width: {img_width};")
         else:
-            return HtmlTemplates.img(filename, img.alt_text)
+            return HtmlTemplates.img(img_url, img.alt_text)
 
 
 

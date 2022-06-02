@@ -1,5 +1,6 @@
 import os
 
+from amtools.filesystem import FileContext
 from amtools.markdown.elements import *
 
 from .html_renderer import HtmlRenderer
@@ -7,7 +8,7 @@ from .html_templates import HtmlTemplates
 
 def render_menu(logo, title, content):
     return f"""
-    <img id="show-menu-icon" class="top-menu-only" src="/static/icons/menu-light.png" alt="Show Menu">
+    <img id="show-menu-icon" class="top-menu-only" src="/static/img/icons/menu-light.png" alt="Show Menu">
     <div class="image side-menu-only">
         {logo}
     </div>
@@ -19,8 +20,8 @@ def render_menu(logo, title, content):
 
 class MenuRenderer(HtmlRenderer):
 
-    def __init__(self, cur_dir=""):
-        super().__init__(cur_dir)
+    def __init__(self, context: FileContext):
+        super().__init__(context)
         self.logo = ''
         self.title = ''
         self.content = []
@@ -34,7 +35,7 @@ class MenuRenderer(HtmlRenderer):
     def render_heading(self, heading: Heading):
         if heading.weight == 1:
             rendered_title = self.render_text_element(heading.title)
-            self.title = f"""<h1 id="menu-title"><a href="{self.cur_dir}">{rendered_title}</a></h1>"""
+            self.title = html_templates.heading(1, rendered_title)
             return ""
 
         return super().render_heading(heading)
@@ -50,6 +51,6 @@ class MenuRenderer(HtmlRenderer):
         return '\n'.join(btns)
     
     def render_menu_button(self, btn_text: str, btn_link: str):
-        full_link = os.path.join(self.cur_dir, btn_link)
+        full_link = self.context.get_url(btn_link)
         return f"""<a href="{full_link}"><button class="menu-btn">{btn_text}</button></a>"""
 

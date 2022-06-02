@@ -37,8 +37,8 @@ class fsutil:
             return None
         
         for f in os.listdir(dir_path):
-            if not f.startswith('.') and os.path.splitext(f)[0] == name:
-                return os.path.join(dir_path, f)
+            if not f.startswith('.') and os.path.splitext(f)[0].replace(' ', '_') == name:
+                return f
 
         return None
 
