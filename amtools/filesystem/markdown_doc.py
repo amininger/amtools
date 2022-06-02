@@ -14,12 +14,13 @@ class MarkdownDoc(Document):
         super().__init__(path, context)
         self.elements = None
 
-    def parse(self) -> None:
-        self.elements = MarkdownParser.parse_file(self.get_local_path())
+    def get_format(self) -> str:
+        return self.metadata.get("format", "default")
+
+    def parse_elements(self) -> list:
         if self.elements is None:
-            self.elements = []
+            self.elements = MarkdownParser.parse_file(self.get_local_path())
+        return self.elements
 
     def __str__(self):
-        if self.elements is None:
-            self.parse()
-        return '\n'.join(map(str, self.elements))
+        return '\n'.join(map(str, self.parse_elements()))

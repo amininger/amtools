@@ -35,7 +35,7 @@ class MenuRenderer(HtmlRenderer):
     def render_heading(self, heading: Heading):
         if heading.weight == 1:
             rendered_title = self.render_text_element(heading.title)
-            self.title = html_templates.heading(1, rendered_title)
+            self.title = HtmlTemplates.heading(1, rendered_title, id='menu-title')
             return ""
 
         return super().render_heading(heading)

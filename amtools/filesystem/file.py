@@ -25,6 +25,11 @@ class FileContext:
     def get_media_url(self, path: str) -> str:
         return fsutil.simplify_path(os.path.join(self.media_path, path))
 
+    def push_dir(self, dir_path: str):
+        return FileContext(os.path.join(self.working_dir, dir_path), 
+                            os.path.join(self.url_path, dir_path),
+                            os.path.join(self.media_path, dir_path))
+
 class File:
     def __init__(self, path: str, context: FileContext):
         self.path     = path

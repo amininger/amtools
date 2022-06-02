@@ -8,7 +8,8 @@ class Directory(File):
         super().__init__(path, context)
         self.dir = self.path
 
-        dir_meta = fsutil.read_file_metadata(os.path.join(self.dir, '_metadata.yaml'))
+        meta_file = self.context.get_local(os.path.join(self.dir, '_metadata.yaml'))
+        dir_meta = fsutil.read_file_metadata(meta_file)
         if dir_meta is not None:
             self.metadata = dir_meta
 
