@@ -12,5 +12,8 @@ def create_renderer(name: str, context: FileContext) -> HtmlRenderer:
     if name is not None:
         if name == "menu":
             return MenuRenderer(context)
+        if name == "pdf":
+            return PdfRenderer(context)
+
 
     return HtmlRenderer(context)

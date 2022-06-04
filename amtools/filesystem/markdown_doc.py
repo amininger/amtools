@@ -17,6 +17,17 @@ class MarkdownDoc(Document):
     def get_format(self) -> str:
         return self.metadata.get("format", "default")
 
+    def get_title(self) -> str:
+        if 'title' in self.metadata:
+            return self.metadata['title']
+        return fsutil.filename2title(self.filename)
+
+    def get_text(self) -> str:
+        if os.path.exists(self.get_local_path()):
+            with open(self.get_local_path(), 'r') as f:
+                return f.read()
+        return ""
+
     def parse_elements(self) -> list:
         if self.elements is None:
             self.elements = MarkdownParser.parse_file(self.get_local_path())

@@ -76,11 +76,12 @@ class HtmlRenderer:
     def render_table(self, table: Table) -> str:
         headings = [ self.render_text_element(h) for h in table.headings ]
         rows = [ [ self.render_text_element(c) for c in row ] for row in table.rows ]
-        return HtmlTemplates.table(headings, rows, table.widths)
+        widths = [ "flex: " + str(w) + ";" for w in table.widths ]
+        return HtmlTemplates.table(headings, rows, widths)
 
     def render_paragraph(self, par: Paragraph) -> str:
         rendered_lines = [ self.render_text_element(el) for el in par.elements ]
-        rendered_text = '\n<br>\n'.join(rendered_lines)
+        rendered_text = '\n<br><br>\n'.join(rendered_lines)
         return HtmlTemplates.p(rendered_text)
 
     def render_text_element(self, text) -> str:
@@ -119,7 +120,10 @@ class HtmlRenderer:
     def render_image(self, img: Image) -> str:
         img_url = img.filename
         if not img.filename.startswith("http") and not img.filename.startswith("www") and not img.filename.startswith("/"):
-            img_url = self.context.get_media_url(img.filename)
+            if self.pdf_safe:
+                img_url = self.context.get_local(img.filename)
+            else:
+                img_url = self.context.get_media_url(img.filename)
         if img.width is not None:
             img_width = img.width if '%' in img.width else img.width + "px"
             return HtmlTemplates.img(img_url, img.alt_text, style=f"width: {img_width};")

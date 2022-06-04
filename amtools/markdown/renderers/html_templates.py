@@ -70,8 +70,11 @@ f"""<!DOCTYPE html>
 
     @staticmethod
     def table(headings, rows, widths, **kwargs):
-        head = HtmlTemplates.tr(headings, widths, True)
-        body = "\n".join(HtmlTemplates.tr(row, widths, False) for row in rows)
+        head = HtmlTemplates.tr(headings, widths, is_heading=True, is_even=False)
+        body = []
+        for i, row in enumerate(rows):
+            body.append(HtmlTemplates.tr(row, widths, is_heading=False, is_even=i%2==0))
+        body = "\n".join(body)
         return \
 f"""<table{info(**kwargs)}>
   <thead>
@@ -84,14 +87,18 @@ f"""<table{info(**kwargs)}>
 """
 
     @staticmethod
-    def tr(row, widths, is_heading):
+    def tr(row, widths, is_heading, is_even):
         make_cell = HtmlTemplates.th if is_heading else HtmlTemplates.td
 
         cols = []
         for i in range(len(row)):
-            cols.append(make_cell(row[i], style=f"flex: {widths[i]};"))
+            cols.append(make_cell(row[i], style=widths[i]))
         col_text = '\n'.join(cols)
-        return f"<tr>\n{indent(col_text, 2)}\n</tr>"
+        if is_even:
+            return f"<tr class=\"even\">\n{indent(col_text, 2)}\n</tr>"
+        else:
+            return f"<tr class=\"odd\">\n{indent(col_text, 2)}\n</tr>"
+
 
     @staticmethod
     def th(text, **kwargs):
