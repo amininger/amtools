@@ -120,10 +120,7 @@ class HtmlRenderer:
     def render_image(self, img: Image) -> str:
         img_url = img.filename
         if not img.filename.startswith("http") and not img.filename.startswith("www") and not img.filename.startswith("/"):
-            if self.pdf_safe:
-                img_url = self.context.get_local(img.filename)
-            else:
-                img_url = self.context.get_media_url(img.filename)
+            img_url = self.context.get_media_url(img.filename)
         if img.width is not None:
             img_width = img.width if '%' in img.width else img.width + "px"
             return HtmlTemplates.img(img_url, img.alt_text, style=f"width: {img_width};")

@@ -3,6 +3,7 @@ import os
 from .file import FileContext
 from .directory import Directory
 from .document import Document
+from .text_doc import TextDoc
 from .markdown_doc import MarkdownDoc
 
 def create_document(path: str, context: FileContext):
@@ -15,6 +16,8 @@ def create_document(path: str, context: FileContext):
         return Directory(path, context)
 
     ext = os.path.splitext(path)[1]
+    if ext == '.txt':
+        return TextDoc(path, context)
     if ext == ".md":
         return MarkdownDoc(path, context)
     return None

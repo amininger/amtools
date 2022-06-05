@@ -20,4 +20,15 @@ class Document(File):
         for k, v in self.parent.metadata.items():
             if k not in self.metadata:
                 self.metadata[k] = v
+
+    def get_title(self) -> str:
+        if 'title' in self.metadata:
+            return self.metadata['title']
+        return fsutil.filename2title(os.path.basename(self.path))
     
+    def get_text(self) -> str:
+        if os.path.exists(self.get_local_path()):
+            with open(self.get_local_path(), 'r') as f:
+                return f.read()
+        return ""
+
