@@ -18,14 +18,14 @@ class PdfRenderer(HtmlRenderer):
     
     def render_hyperlink(self, link: Hyperlink) -> str:
         link_text = self.render_text_element(link.text)
-        if link_addr.startswith("http") or link_addr.startswith("www"):
-            return HtmlTemplates.a(link_text, link_addr)
+        if not self.is_relative(link.addr):
+            return HtmlTemplates.a(link_text, link.addr)
         return link_text
     
     def render_image(self, img: Image) -> str:
         img_url = img.filename
-        if not img.filename.startswith("http") and not img.filename.startswith("www") and not img.filename.startswith("/"):
-            img_url = self.context.get_local(img.filename)
+        if self.is_relative(img_url):
+            img_url = self.context.get_local(img_url)
         if img.width is not None:
             img_width = img.width if '%' in img.width else img.width + "px"
             return HtmlTemplates.img(img_url, img.alt_text, style=f"width: {img_width};")

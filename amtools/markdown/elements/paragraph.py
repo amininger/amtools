@@ -24,6 +24,7 @@ class Paragraph(MarkdownElement):
     def add_empty_line(self) -> None:
         if self.lines[-1] != "":
             self.lines.append("")
+            self.lines.append("")
 
     def set_elements(self, elements: list) -> None:
         self.elements = elements

@@ -8,7 +8,11 @@ class Table:
         self.headings = headings
         self.num_cols = len(self.headings)
         self.rows = []
-        self.widths = [ len(h.raw_text()) for h in self.headings ]
+        self.widths = [ self.calc_width(h.raw_text()) for h in self.headings ]
+
+    def calc_width(self, text):
+        return max(len(s) for s in text.split("<br>"))
+
 
     def add_row(self, row: List[InlineText]) -> None:
         new_row = []
@@ -17,7 +21,7 @@ class Table:
                 new_row.append(row[i])
             else:
                 new_row.append(InlineText())
-            self.widths[i] = max(self.widths[i], len(new_row[i].raw_text()))
+            self.widths[i] = max(self.widths[i], self.calc_width(new_row[i].raw_text()))
         self.rows.append(new_row)
 
     def print_headings(self) -> str:

@@ -7,6 +7,7 @@ from .html_templates import HtmlTemplates
 
 NL_PLACEHOLDER = '_#!_NL_!#_'
 
+
 class HtmlRenderer:
     def __init__(self, context: FileContext):
         self.context = context
@@ -81,7 +82,7 @@ class HtmlRenderer:
 
     def render_paragraph(self, par: Paragraph) -> str:
         rendered_lines = [ self.render_text_element(el) for el in par.elements ]
-        rendered_text = '\n<br><br>\n'.join(rendered_lines)
+        rendered_text = '\n<br>\n'.join(rendered_lines)
         return HtmlTemplates.p(rendered_text)
 
     def render_text_element(self, text) -> str:
@@ -109,18 +110,24 @@ class HtmlRenderer:
 
     def render_tag(self, tag: Tag) -> str:
         return HtmlTemplates.a("#" + tag.title, "", cls="tag red-tag")
+
+    def is_relative(self, addr):
+        for pattern in [ 'http', 'www', '/', 'mailto' ]:
+            if addr.startswith(pattern):
+                return False
+        return True
     
     def render_hyperlink(self, link: Hyperlink) -> str:
         link_text = self.render_text_element(link.text)
         link_addr = link.addr
-        if not link_addr.startswith("http") and not link_addr.startswith("www") and not link_addr.startswith("/"):
+        if self.is_relative(link_addr):
             link_addr = self.context.get_url(link_addr)
         return HtmlTemplates.a(link_text, link_addr)
     
     def render_image(self, img: Image) -> str:
         img_url = img.filename
-        if not img.filename.startswith("http") and not img.filename.startswith("www") and not img.filename.startswith("/"):
-            img_url = self.context.get_media_url(img.filename)
+        if self.is_relative(img_url):
+            img_url = self.context.get_media_url(img_url)
         if img.width is not None:
             img_width = img.width if '%' in img.width else img.width + "px"
             return HtmlTemplates.img(img_url, img.alt_text, style=f"width: {img_width};")

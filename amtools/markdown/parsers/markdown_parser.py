@@ -276,7 +276,9 @@ class MarkdownParser:
 
     def parse_paragraph(self, p: Paragraph) -> None:
         """ Will parse each line in the given paragraph as inline text """
-        elements = [ self.parse_inline_text(line) for line in p.lines if len(line) > 0]
+        elements = [ self.parse_inline_text(line) for line in p.lines]
+        if p.lines[-1] == '':
+            elements = elements[:-1]
         p.set_elements(elements)
 
     def parse_inline_text(self, text: str) -> InlineText:
