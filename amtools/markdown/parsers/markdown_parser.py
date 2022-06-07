@@ -18,6 +18,7 @@ r_LINK          = re.compile(r"\[[^]]*\]\([^)]+\)")
 r_HEADING       = re.compile(r"^#{1,6} ")
 r_HRULE         = re.compile(r"^[-=]{3,}$")
 r_IMAGE         = re.compile(r"^!\[[^]]*\]\([^)]+\)")
+r_IMAGE2        = re.compile(r"^!\[\[[^]]*\]\]")
 
 r_TABLE         = re.compile(r"^\|([^|]+\|)+ *$")
 r_TASK_LIST     = re.compile(r"^- \[[ ?xX]\] ")
@@ -82,6 +83,7 @@ class MarkdownParser:
         self.line_matchers.append(LineElementMatcher(r_HEADING, self.parse_heading))
         self.line_matchers.append(LineElementMatcher(r_HRULE,   self.parse_hrule))
         self.line_matchers.append(LineElementMatcher(r_IMAGE,   self.parse_image))
+        self.line_matchers.append(LineElementMatcher(r_IMAGE2,  self.parse_image2))
 
         self.text_matchers = [ ]
         self.text_matchers.append(TextElementMatcher(r_BOLD, BoldText, 2, 2))
@@ -174,6 +176,14 @@ class MarkdownParser:
 
         return Image(filename, alt_text, params)
 
+    def parse_image2(self, line: str) -> Heading:
+        filename = line[3:-2]
+        alt_parts = filename.split("|")
+        params = None
+        if len(alt_parts) == 2:
+            filename, params = alt_parts
+
+        return Image(filename, "", params)
 
 
     ##############################################################

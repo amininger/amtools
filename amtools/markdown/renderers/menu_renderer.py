@@ -40,6 +40,13 @@ class MenuRenderer(HtmlRenderer):
 
         return super().render_heading(heading)
 
+    def render_image(self, img: Image) -> str:
+        img_url = img.filename
+        if self.is_relative(img_url):
+            img_url = self.context.get_media_url(img_url)
+        self.logo = HtmlTemplates.img(img_url, img.alt_text)
+        return ""
+
     def render_bulleted_list(self, b_list: BulletedList):
         btns = []
         for item in b_list.items:
