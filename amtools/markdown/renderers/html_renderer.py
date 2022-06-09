@@ -67,7 +67,10 @@ class HtmlRenderer:
     
     def render_code_block(self, block: CodeBlock) -> str:
         compacted_block = block.text.replace('\n', NL_PLACEHOLDER)
-        code_block = HtmlTemplates.code(compacted_block)
+        if block.lang != "":
+            code_block = HtmlTemplates.code(compacted_block, cls=('language-' + block.lang))
+        else:
+            code_block = HtmlTemplates.code(compacted_block)
         return HtmlTemplates.pre(code_block)
 
     def render_block_quote(self, block: BlockQuote) -> str:

@@ -204,10 +204,10 @@ class MarkdownParser:
 
     def parse_code_block(self, line_reader: LineReader) -> CodeBlock:
         """ Reads until the end of the code block and returns a CodeBlock object """
-        line_reader.skip_line()
+        open_line = line_reader.read_line()
         block_text = "\n".join(line_reader.read_lines_until('```', include_end=False))
         line_reader.skip_line()
-        return CodeBlock(block_text)
+        return CodeBlock(block_text, open_line[3:])
 
     def parse_block_quote(self, line_reader: LineReader) -> BlockQuote:
         """ Reads until the end of the block quote and returns a BlockQuote object """
