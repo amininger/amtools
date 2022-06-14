@@ -68,6 +68,9 @@ class fsutil:
             return fsutil.parse_metadata(line_reader)
         except FileNotFoundError:
             return None
+        except UnicodeDecodeError:
+            # Binary file type
+            return { }
 
 
     @staticmethod
