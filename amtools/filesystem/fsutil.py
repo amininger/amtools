@@ -43,14 +43,16 @@ class fsutil:
         return None
 
     @staticmethod
-    def get_files_in_dir(dir_path: str) -> dict:
+    def get_files_in_dir(dir_path: str, valid_extensions=None) -> dict:
         """ Returns all the files in the directory that match valid extensions """
         files = {}
+        if valid_extensions is None:
+            valid_extensions = [ ".md", ".txt" ]
         for f in os.listdir(dir_path):
             if f.startswith('.'):
                 continue
             parts = os.path.splitext(f)
-            if parts[1] in [ ".md", ".txt" ]:
+            if parts[1] in valid_extensions:
                 files[parts[0]] = os.path.join(dir_path, f)
         return files
 
