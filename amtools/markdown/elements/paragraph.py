@@ -13,7 +13,7 @@ class Paragraph(MarkdownElement):
     def add_text(self, text: str) -> None:
         text = text.strip()
         newline = False
-        if text[-1] == '\\':
+        if len(text) > 0 and text[-1] == '\\':
             newline = True
             text = text[:-1]
 

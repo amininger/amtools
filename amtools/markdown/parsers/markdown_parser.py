@@ -2,7 +2,7 @@ import re
 from dataclasses import dataclass
 from typing import Callable, List
 
-from amtools import LineReader, FileReader
+from amtools import LineReader, FileReader, ListReader
 from amtools.markdown.elements import *
 
 r_COMMENT       = re.compile(r"^//")
@@ -55,6 +55,13 @@ def split_match(text: str, re_match: re.Match, del_front:int=0, del_end:int=0) -
     return (before, inner, after)
 
 class MarkdownParser:
+    @staticmethod
+    def parse_string(markdown: str) -> List[MarkdownElement]:
+        """ Parses the given markdown in the string and returns a list of elements """
+        reader = ListReader(markdown.split('\n'))
+        parser = MarkdownParser()
+        return parser.parse_markdown(reader)
+
     @staticmethod
     def parse_file(filename: str) -> List[MarkdownElement]:
         """ Parses the given markdown file and returns a list of elements """
