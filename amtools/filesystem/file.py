@@ -1,49 +1,37 @@
 import os
 
-from amtools.markdown.parsers import MarkdownParser
-
 from .fsutil import fsutil
-
-class FileContext:
-    def __init__(self, working_dir: str='', url_path: str='/', media_path: str='/media'):
-        """ File paths are relative to some root directory
-            A FileContext contains different options for the root path
-            working_dir : An absolute filesystem path to the root directory
-            url_path    : A path prefix for resolving website links
-            media_path  : A path prefix for media queries """
-
-        self.working_dir = working_dir
-        self.url_path    = url_path
-        self.media_path  = media_path
-
-    def get_local(self, path: str) -> str:
-        return fsutil.simplify_path(os.path.join(self.working_dir, path))
-
-    def get_url(self, path: str) -> str:
-        return fsutil.simplify_path(os.path.join(self.url_path, path))
-
-    def get_media_url(self, path: str) -> str:
-        return fsutil.simplify_path(os.path.join(self.media_path, path))
-
-    def push_dir(self, dir_path: str):
-        return FileContext(os.path.join(self.working_dir, dir_path), 
-                            os.path.join(self.url_path, dir_path),
-                            os.path.join(self.media_path, dir_path))
+from .file_context import FileContext
+from .directory import Directory
 
 class File:
     def __init__(self, path: str, context: FileContext):
+        local_file = context.get_local(path)
+        if not os.path.exists(local_file):
+            raise FileNotFoundException(path)
+
         self.path     = path
-        self.dir      = os.path.dirname(path)
         self.context  = context
-        self.metadata = { }
+        self.dir      = Directory(os.path.dirname(path), self.context)
+
+        self.filename = os.path.basename(path)
+        self.ext      = os.path.splitext(self.filename)[1][1:]
+
+        self.metadata = self.dir.metadata.copy()
 
     def get_local_path(self):
         return self.context.get_local(self.path)
 
-    def get_home(self):
-        home_file = os.path.join(self.dir, self.metadata.get("home", "home.md"))
-        return fsutil.simplify_path(home_file)
-
     def get_menu(self):
-        menu_file = os.path.join(self.dir, self.metadata.get("menu", "menu.md"))
-        return fsutil.simplify_path(menu_file)
+        menu_file = os.path.join(self.dir.path, self.metadata.get("menu", "_menu.md"))
+        menu_file = fsutil.simplify_path(menu_file)
+        local_menu = self.context.get_local(menu_file)
+
+        return menu_file if os.path.exists(local_menu) else None
+
+    def get_title(self) -> str:
+        return self.filename
+
+    def __str__(self) -> str:
+        return self.path
+    

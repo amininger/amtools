@@ -1,21 +1,17 @@
 import os
 
-from amtools import FileReader
 from amtools.markdown.parsers import MarkdownParser
 
-from .file import FileContext
-from .document import Document
 from .fsutil import fsutil
+from .file_context import FileContext
+from .text_doc import TextDoc
 
-class MarkdownDoc(Document):
+class MarkdownDoc(TextDoc):
     """ A wrapper to a markdown document on the filesystem """
 
     def __init__(self, path: str, context: FileContext):
         super().__init__(path, context)
         self.elements = None
-
-    def get_format(self) -> str:
-        return self.metadata.get("format", "default")
 
     def parse_elements(self) -> list:
         if self.elements is None:
@@ -23,4 +19,4 @@ class MarkdownDoc(Document):
         return self.elements
 
     def __str__(self):
-        return '\n'.join(map(str, self.parse_elements()))
+        return self.path + '\n' + '\n'.join(map(str, self.parse_elements()))

@@ -1,8 +1,7 @@
 import os
 
-from .file import FileContext
+from .file_context import FileContext
 from .directory import Directory
-from .document import Document
 from .text_doc import TextDoc
 from .markdown_doc import MarkdownDoc
 

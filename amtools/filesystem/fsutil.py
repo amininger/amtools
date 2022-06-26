@@ -35,9 +35,12 @@ class fsutil:
         """ Given a directory and a file name, try to find an existing file that matches it """
         if not os.path.isdir(dir_path):
             return None
+
+        if os.path.exists(os.path.join(dir_path, name)):
+            return name
         
         for f in os.listdir(dir_path):
-            if not f.startswith('.') and os.path.splitext(f)[0].replace(' ', '_') == name:
+            if f.replace(' ', '_') == name:
                 return f
 
         return None
@@ -66,8 +69,6 @@ class fsutil:
         try:
             line_reader = FileReader(filename)
             return fsutil.parse_metadata(line_reader)
-        except FileNotFoundError:
-            return None
         except UnicodeDecodeError:
             # Binary file type
             return { }

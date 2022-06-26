@@ -1,10 +1,9 @@
 
 from .fsutil import fsutil
-from .file import FileContext, File
+from .file_context import FileContext
 from .directory import Directory
-from .document import Document
+from .file import File
 from .text_doc import TextDoc
-from .html_doc import HtmlDoc
 from .markdown_doc import MarkdownDoc
 from .document_factory import create_document
 
