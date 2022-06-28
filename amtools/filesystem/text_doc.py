@@ -13,11 +13,12 @@ class TextDoc(File):
         for k, v in metadata.items():
             self.metadata[k] = v
 
-    def get_text(self) -> str:
-        if os.path.exists(self.get_local_path()):
-            with open(self.get_local_path(), 'r') as f:
-                return f.read()
-        return ""
+    def get_text(self, skip_metadata=False) -> str:
+        with open(self.get_local_path(), 'r') as f:
+            text = f.read()
+        if skip_metadata:
+            return fsutil.remove_metadata(text)
+        return text
 
     def get_title(self) -> str:
         return self.metadata['title']

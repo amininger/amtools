@@ -22,13 +22,19 @@ r_IMAGE2        = re.compile(r"^!\[\[[^]]*\]\]")
 
 r_TABLE         = re.compile(r"^\|([^|]+\|)+ *$")
 r_TASK_LIST     = re.compile(r"^- \[[ ?xX]\] ")
-r_BULLETED_LIST = re.compile(r"^[*-] ")
+r_BULLETED_LIST = re.compile(r"^\t*[*-] ")
 r_NUMBERED_LIST = re.compile(r"^[0-9]{1,2}\. ")
 r_CODE_BLOCK    = re.compile(r"^```")
 r_BLOCK_QUOTE   = re.compile(r"^> ")
 
 TASK_STATUS_SYMBOLS = { 'x': TaskItemStatus.COMPLETE, 'X': TaskItemStatus.COMPLETE, 
                         '?': TaskItemStatus.UNKNOWN,  ' ': TaskItemStatus.INCOMPLETE }
+
+def get_indent(s):
+    c = 0
+    while c < len(s) and s[c] == '\t':
+        c += 1
+    return c
 
 @dataclass 
 class BlockElementMatcher:
@@ -248,8 +254,9 @@ class MarkdownParser:
         while not line_reader.at_end():
             next_line = line_reader.peek()
             if r_BULLETED_LIST.match(next_line):
-                item_text = next_line[2:].strip()
-                items.append(self.parse_inline_text(item_text))
+                indent = get_indent(next_line)
+                item_text = next_line.strip()[2:]
+                items.append( (self.parse_inline_text(item_text), indent) )
             elif not r_EMPTY_LINE.match(next_line):
                 # If we hit a different non-empty line, exit
                 break

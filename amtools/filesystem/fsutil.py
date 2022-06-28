@@ -1,7 +1,7 @@
 import os
 import re
 
-from amtools import LineReader, FileReader
+from amtools import LineReader, FileReader, ListReader
 
 class fsutil:
     """ Contains static methods for interacting with the file system """
@@ -94,5 +94,18 @@ class fsutil:
 
         return metadata
 
-
+    @staticmethod
+    def remove_metadata(text: str):
+        lines = text.split('\n')
+        i = 0
+        while i < len(lines) and lines[i].strip() == "":
+            i += 1
+        if i >= len(lines) or lines[i].strip() != "---":
+            return text
+        i += 1
+        while i < len(lines) and lines[i].strip() != "---":
+            i += 1
+        if i == len(lines):
+            return text
+        return "\n".join(lines[i+1:])
 

@@ -55,14 +55,14 @@ class MenuRenderer(HtmlRenderer):
     def render_bulleted_list(self, b_list: BulletedList):
         btns = []
         for item in b_list.items:
-            for el in item.elements:
+            for el in item[0].elements:
                 if isinstance(el, Hyperlink):
                     btn_text = self.render_text_element(el.text)
-                    btns.append(self.render_menu_button(btn_text, el.addr))
+                    btns.append(self.render_menu_button(btn_text, el.addr, f"indent-{item[1]}"))
 
         return '\n'.join(btns)
     
-    def render_menu_button(self, btn_text: str, btn_link: str):
+    def render_menu_button(self, btn_text: str, btn_link: str, cls: str):
         full_link = self.context.get_url(btn_link)
-        return f"""<a href="{full_link}"><button class="menu-btn">{btn_text}</button></a>"""
+        return f"""<a href="{full_link}"><button class="menu-btn {cls}">{btn_text}</button></a>"""
 

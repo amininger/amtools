@@ -46,16 +46,16 @@ class HtmlRenderer:
         return HtmlTemplates.heading(heading.weight, rendered_title) 
 
     def render_bulleted_list(self, b_list: BulletedList) -> str:
-        list_items = '\n'.join(self.render_list_item(li) for li in b_list.items)
+        list_items = '\n'.join(self.render_list_item(li[0], cls=f"indent-{li[1]}") for li in b_list.items)
         return HtmlTemplates.unordered_list(list_items) 
 
     def render_numbered_list(self, n_list: NumberedList) -> str:
         list_items = '\n'.join(self.render_list_item(li) for li in n_list.items)
         return HtmlTemplates.ordered_list(list_items) 
 
-    def render_list_item(self, li: str) -> str:
+    def render_list_item(self, li: str, **kwargs) -> str:
         rendered_text = self.render_text_element(li)
-        return HtmlTemplates.list_item(rendered_text)
+        return HtmlTemplates.list_item(rendered_text, **kwargs)
 
     def render_task_list(self, t_list: TaskList) -> str:
         list_items = '\n'.join(self.render_task_list_item(li) for li in t_list.items)
