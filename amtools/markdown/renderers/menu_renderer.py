@@ -9,9 +9,11 @@ from .html_templates import HtmlTemplates
 def render_menu(logo, title, content):
     return f"""
     <img id="show-menu-icon" class="top-menu-only" src="/static/img/icons/menu-light.png" alt="Show Menu">
+    <a href="/">
     <div class="image side-menu-only">
         {logo}
     </div>
+    </a>
     {title}
     <div id="menu-content" label="Menu Links">
         {content}
@@ -20,17 +22,20 @@ def render_menu(logo, title, content):
 
 class MenuRenderer(HtmlRenderer):
 
-    def __init__(self, context: FileContext):
+    def __init__(self, context: FileContext, menu_header="", menu_footer=""):
         super().__init__(context)
         self.logo = ''
         self.title = ''
         self.content = []
+        self.header = menu_header
+        self.footer = menu_footer
 
     def render_markdown_elements(self, elements: list):
         for el in elements:
             self.content.append(self.render_element(el))
 
-        return render_menu(self.logo, self.title, '\n'.join(self.content))
+        content = self.header + '\n' + '\n'.join(self.content) + '\n' + self.footer
+        return render_menu(self.logo, self.title, content)
 
     def render_heading(self, heading: Heading):
         if heading.weight == 1:

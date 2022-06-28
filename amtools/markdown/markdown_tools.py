@@ -6,7 +6,9 @@ from amtools.filesystem import MarkdownDoc, FileContext
 from amtools.markdown.parsers import MarkdownParser
 from amtools.markdown.renderers import PdfRenderer
 
-CSS_FILES = [ '/home/aaron/workspace/python/amtools/pdf-theme.css' ]
+CSS_FILES = [ ]
+if 'AMTOOLS_HOME' in os.environ:
+    CSS_FILES.append( f"os.environ['AMTOOLS_HOME']/pdf-theme.css" )
 
 def make_pdf_from_markdown(filename, markdown):
     context = FileContext("", "", "")
