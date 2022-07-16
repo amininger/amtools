@@ -167,12 +167,12 @@ a:hover {
   font-weight: bold;
   text-align: left;
   color: #FFF;
-  padding: 0.4em 0.5em;
+  padding: 0.2em 0.5em 0.0em 0.5em;
     background-color: #CC4D49;
 }
 
 .content td {
 	flex: 1 1;
 	text-align: left;
-  padding: 0.4em 0.5em;
+  padding: 0.2em 0.5em 0.0em 0.5em;
 }

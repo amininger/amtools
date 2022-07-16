@@ -107,6 +107,8 @@ class HtmlRenderer:
                 return HtmlTemplates.delete(rendered_children)
             if isinstance(text, HighlightText):
                 return HtmlTemplates.mark(rendered_children)
+            if isinstance(text, Image):
+                return self.render_image(text)
             return rendered_children
 
         return str(text)

@@ -7,13 +7,15 @@ from amtools.markdown.elements import *
 
 r_COMMENT       = re.compile(r"^//")
 r_EMPTY_LINE    = re.compile(r"^[ \t]*$")
-r_BOLD          = re.compile(r"\*\*[^*]+\*\*")
+r_BOLD          = re.compile(r"\*\*[^*]+(\*[^*]+)*\*\*")
 r_ITALICS       = re.compile(r"_[^_]+_")
 r_INLINE_CODE   = re.compile(r"`[^`]+`")
 r_STRIKETHROUGH = re.compile(r"~~[^~]+~~")
 r_HIGHLIGHT     = re.compile(r"==[^=]+==")
 r_TAG           = re.compile(r"(^| )\#[a-zA-Z0-9_-]+")
 r_LINK          = re.compile(r"\[[^]]*\]\([^)]+\)")
+r_INLINE_IMAGE  = re.compile(r"!\[[^]]*\]\([^)]+\)")
+r_INLINE_IMAGE2 = re.compile(r"!\[\[[^]]*\]\]")
 
 r_HEADING       = re.compile(r"^#{1,6} ")
 r_HRULE         = re.compile(r"^[-=]{3,}$")
@@ -96,12 +98,14 @@ class MarkdownParser:
         self.line_matchers.append(LineElementMatcher(r_HEADING, self.parse_heading))
         self.line_matchers.append(LineElementMatcher(r_HRULE,   self.parse_hrule))
         self.line_matchers.append(LineElementMatcher(r_IMAGE,   self.parse_image))
-        self.line_matchers.append(LineElementMatcher(r_IMAGE2,  self.parse_image2))
+        self.line_matchers.append(LineElementMatcher(r_IMAGE2,  self.parse_image))
 
         self.text_matchers = [ ]
+        self.text_matchers.append(TextElementMatcher(r_INLINE_IMAGE, Image, 0, 0))
+        self.text_matchers.append(TextElementMatcher(r_INLINE_IMAGE2, Image, 0, 0))
+        self.text_matchers.append(TextElementMatcher(r_INLINE_CODE, CodeText, 1, 1))
         self.text_matchers.append(TextElementMatcher(r_BOLD, BoldText, 2, 2))
         self.text_matchers.append(TextElementMatcher(r_ITALICS, ItalicsText, 1, 1))
-        self.text_matchers.append(TextElementMatcher(r_INLINE_CODE, CodeText, 1, 1))
         self.text_matchers.append(TextElementMatcher(r_STRIKETHROUGH, StrikethroughText, 2, 2))
         self.text_matchers.append(TextElementMatcher(r_HIGHLIGHT, HighlightText, 2, 2))
 
@@ -178,25 +182,8 @@ class MarkdownParser:
         title = self.parse_inline_text(line.strip())
         return Heading(weight, title)
 
-    def parse_image(self, line: str) -> Heading:
-        close_br = line.index(']')
-        alt_text = line[2:close_br]
-        filename = line[close_br+2:-1]
-        alt_parts = alt_text.split("|")
-        params = None
-        if len(alt_parts) == 2:
-            alt_text, params = alt_parts
-
-        return Image(filename, alt_text, params)
-
-    def parse_image2(self, line: str) -> Heading:
-        filename = line[3:-2]
-        alt_parts = filename.split("|")
-        params = None
-        if len(alt_parts) == 2:
-            filename, params = alt_parts
-
-        return Image(filename, "", params)
+    def parse_image(self, line: str) -> Image:
+        return Image(line.strip())
 
 
     ##############################################################
@@ -330,9 +317,14 @@ class MarkdownParser:
                 (before, inner, after)
             and parses each one before returning an InlineText containing all three """
         before, inner, after = split_match(text, re_match, matcher.del_front, matcher.del_end)
+        if matcher.element == Image or matcher.element == CodeText:
+            parsed_inner = inner
+        else:
+            parsed_inner = self.parse_inline_text(inner)
+
         return InlineText(
             self.parse_inline_text(before), 
-            matcher.element(self.parse_inline_text(inner)),
+            matcher.element(parsed_inner),
             self.parse_inline_text(after) 
         )
 

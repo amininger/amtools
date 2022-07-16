@@ -8,7 +8,8 @@ from amtools.markdown.renderers import PdfRenderer
 
 CSS_FILES = [ ]
 if 'AMTOOLS_HOME' in os.environ:
-    CSS_FILES.append( f"os.environ['AMTOOLS_HOME']/pdf-theme.css" )
+    CSS_FILES.append( os.path.join(os.environ['AMTOOLS_HOME'], "pdf-theme.css" ))
+print("CSS_FILES", CSS_FILES)
 
 def make_pdf_from_markdown(filename, markdown):
     context = FileContext("", "", "")

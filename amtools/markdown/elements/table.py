@@ -11,7 +11,7 @@ class Table:
         self.widths = [ self.calc_width(h.raw_text()) for h in self.headings ]
 
     def calc_width(self, text):
-        return max(len(s) for s in text.split("<br>"))
+        return 3 + max(len(s) for s in text.split("<br>"))
 
 
     def add_row(self, row: List[InlineText]) -> None:
