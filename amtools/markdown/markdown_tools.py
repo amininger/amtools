@@ -9,7 +9,6 @@ from amtools.markdown.renderers import PdfRenderer
 CSS_FILES = [ ]
 if 'AMTOOLS_HOME' in os.environ:
     CSS_FILES.append( os.path.join(os.environ['AMTOOLS_HOME'], "pdf-theme.css" ))
-print("CSS_FILES", CSS_FILES)
 
 def make_pdf_from_markdown(filename, markdown):
     context = FileContext("", "", "")
@@ -19,7 +18,7 @@ def make_pdf_from_markdown(filename, markdown):
     pdf_html = make_pdf_html(filename, html, CSS_FILES)
 
     result = BytesIO()
-    pdf = pisa.pisaDocument(BytesIO(pdf_html.encode("ISO-8859-1")), result)
+    pdf = pisa.pisaDocument(BytesIO(pdf_html.encode("UTF-8")), result)
     if not pdf.err:
         with open(filename, 'wb') as f:
             f.write(result.getvalue())
