@@ -10,12 +10,10 @@ class InlineText(MarkdownElement):
     def __init__(self, *elements):
         self.elements = []
         for el in elements:
-            if isinstance(el, str):
-                if len(el.strip()) > 0:
-                    self.elements.append(RawText(el))
-            elif type(el) == RawText:
-                if len(el.text.strip()) > 0:
-                    self.elements.append(el)
+            if isinstance(el, str) and len(el) > 0:
+                self.elements.append(RawText(el))
+            elif type(el) == RawText and len(el.text) > 0:
+                self.elements.append(el)
             elif type(el) == InlineText:
                 self.elements.extend(el.elements)
             else:

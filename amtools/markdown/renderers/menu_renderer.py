@@ -52,10 +52,20 @@ class MenuRenderer(HtmlRenderer):
         self.logo = HtmlTemplates.img(img_url, img.alt_text)
         return ""
 
-    def render_bulleted_list(self, b_list: BulletedList):
+    def unroll_nested_lists(self, list_block: ListBlock, depth:int=0):
+        list_items = []
+        for elem in list_block.elements:
+            if isinstance(elem, ListItem):
+                list_items.append( (elem, depth) )
+            elif isinstance(elem, ListBlock):
+                list_items.extend(self.unroll_nested_lists(elem, depth+1))
+        return list_items
+
+    def render_list_block(self, list_block: ListBlock):
         btns = []
-        for item in b_list.items:
-            for el in item[0].elements:
+        list_items = self.unroll_nested_lists(list_block)
+        for item in list_items:
+            for el in item[0].text.elements:
                 if isinstance(el, Hyperlink):
                     btn_text = self.render_text_element(el.text)
                     btns.append(self.render_menu_button(btn_text, el.addr, f"indent-{item[1]}"))

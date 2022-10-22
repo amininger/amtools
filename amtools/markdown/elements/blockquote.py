@@ -5,11 +5,8 @@ from .inline_text import InlineText
 class BlockQuote(MarkdownElement):
     """ A quoted block of text """
 
-    def __init__(self):
-        self.lines = []
-
-    def add_line(self, line: InlineText) -> None:
-        self.lines.append(line)
+    def __init__(self, elements):
+        self.elements = elements
     
     def __str__(self) -> str:
-        return "| " + "\n| ".join(str(line) for line in self.lines)
+        return "| " + "\n| ".join(str(elem) for elem in self.elements)

@@ -5,31 +5,24 @@ class Paragraph(MarkdownElement):
     """ An entire paragraph of text (all text is wrapped in paragraphs) """
 
     def __init__(self, text: str):
-        self.lines = [""]
+        self.text = ""
         self.add_text(text)
+        self.text_element = None
 
-        self.elements = []
-
-    def add_text(self, text: str) -> None:
-        text = text.strip()
+    def add_text(self, new_text: str) -> None:
+        new_text = new_text.strip()
         newline = False
-        if len(text) > 0 and text[-1] == '\\':
+
+        if new_text[-1] == '\\':
+            new_text = new_text[:-1]
             newline = True
-            text = text[:-1]
+        elif new_text.endswith('<br>'):
+            new_text = new_text[:-4]
+            newline = True
 
-        self.lines[-1] = self.lines[-1] + " " + text
-        if newline:
-            self.lines.append("")
+        self.text += ("\n" if self.text else "") + new_text + ("\n<br>" if newline else "")
 
-    def add_empty_line(self) -> None:
-        if self.lines[-1] != "":
-            self.lines.append("")
-            self.lines.append("")
-
-    def set_elements(self, elements: list) -> None:
-        self.elements = elements
-    
     def __str__(self) -> str:
-        return "P(\n  " + '\n  '.join(el.raw_text() for el in self.elements) + "\n)"
+        return "P(\n  " + self.text_element.raw_text() + "\n)"
         #return "P(\n  " + '\n  '.join(map(str, self.elements)) + "\n)"
 

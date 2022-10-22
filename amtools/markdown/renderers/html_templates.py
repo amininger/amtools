@@ -132,14 +132,15 @@ f"""<table{info(**kwargs)}>
 
     @staticmethod
     def bold(text, **kwargs):
-        return f"<b{info(**kwargs)}>{text}</b>"
+        return f"<strong{info(**kwargs)}>{text}</strong>"
 
     @staticmethod
     def italics(text, **kwargs):
-        return f"<i{info(**kwargs)}>{text}</i>"
+        return f"<em{info(**kwargs)}>{text}</em>"
 
     @staticmethod
     def code(text, **kwargs):
+        text = text.replace('<', '&lt;').replace('>', '&gt;')
         return f"<code{info(**kwargs)}>{text}</code>"
 
     @staticmethod

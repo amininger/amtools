@@ -7,25 +7,30 @@ from amtools.markdown.elements import *
 
 r_COMMENT       = re.compile(r"^//")
 r_EMPTY_LINE    = re.compile(r"^[ \t]*$")
-r_BOLD          = re.compile(r"\*\*[^*]+(\*[^*]+)*\*\*")
-r_ITALICS       = re.compile(r"_[^_]+_")
-r_INLINE_CODE   = re.compile(r"`[^`]+`")
-r_STRIKETHROUGH = re.compile(r"~~[^~]+~~")
-r_HIGHLIGHT     = re.compile(r"==[^=]+==")
-r_TAG           = re.compile(r"(^| )\#[a-zA-Z0-9_-]+")
-r_LINK          = re.compile(r"\[[^]]*\]\([^)]+\)")
-r_INLINE_IMAGE  = re.compile(r"!\[[^]]*\]\([^)]+\)")
-r_INLINE_IMAGE2 = re.compile(r"!\[\[[^]]*\]\]")
+r_INDENTED      = re.compile(r"^(\t|    )")
+r_BOLD          = re.compile(r"\*\*([^*]+)\*\*")
+r_ITALICS       = re.compile(r"_([^_]+)_")
+r_STRIKETHROUGH = re.compile(r"~~([^~]+)~~")
+r_HIGHLIGHT     = re.compile(r"==([^=]+)==")
+r_INLINE_CODE   = re.compile(r"`([^`]+)`")
+r_INLINE_CODE_ESC = re.compile(r"``([^`]([^`]|`[^`])+)``")
+r_TAG           = re.compile(r"^\#([-/\w]*[a-zA-Z][-/\w]*)\b")
+r_TAG2          = re.compile(r"\s\#([-/\w]*[a-zA-Z][-/\w]*)\b")
+r_LINK          = re.compile(r'\[([^][]*)\]\(([^)("\s]+)\s*("[^"]+")?\)')
+r_ANGLE_LINK    = re.compile(r"<([^<>\s]+\.[^<>\s]+)>")
+#r_INTERNAL_LINK = re.compile(r"\[\[([^][]*)\]\]")
+r_INLINE_IMAGE  = re.compile(r"!\[([^][]*)\]\(([^)(]+)\)")
+r_INLINE_IMAGE2 = re.compile(r"!\[\[([^][]*)\]\]")
 
 r_HEADING       = re.compile(r"^#{1,6} ")
-r_HRULE         = re.compile(r"^[-=]{3,}$")
+r_HRULE         = re.compile(r"^[-=_*]{3,}$")
 r_IMAGE         = re.compile(r"^!\[[^]]*\]\([^)]+\)")
 r_IMAGE2        = re.compile(r"^!\[\[[^]]*\]\]")
 
 r_TABLE         = re.compile(r"^\|([^|]+\|)+ *$")
 r_TASK_LIST     = re.compile(r"^- \[[ ?xX]\] ")
-r_BULLETED_LIST = re.compile(r"^\t*[*-] ")
-r_NUMBERED_LIST = re.compile(r"^[0-9]{1,2}\. ")
+r_BULLETED_LIST = re.compile(r"^[*-+] ")
+r_NUMBERED_LIST = re.compile(r"^[0-9]{1,3}\. ")
 r_CODE_BLOCK    = re.compile(r"^```")
 r_BLOCK_QUOTE   = re.compile(r"^> ")
 
@@ -38,6 +43,12 @@ def get_indent(s):
         c += 1
     return c
 
+class ParsedArg:
+    pass
+
+class UnparsedArg:
+    pass
+
 @dataclass 
 class BlockElementMatcher:
     pattern: re.Pattern
@@ -48,17 +59,17 @@ class LineElementMatcher:
     pattern: re.Pattern
     parser: Callable[[str], MarkdownElement]
 
-@dataclass
 class TextElementMatcher:
-    pattern: re.Pattern
-    element: type
-    del_front: int
-    del_end: int
+    def __init__(self, pattern: re.Pattern, element: MarkdownElement, *args):
+        self.pattern = pattern
+        self.element = element
+        self.args = args
 
-def split_match(text: str, re_match: re.Match, del_front:int=0, del_end:int=0) -> (str, str, str):
+
+def split_match(text: str, re_match: re.Match) -> (str, List[str], str):
     s, e   = re_match.start(), re_match.end()
     before = text[:s]
-    inner  = text[s + del_front : e - del_end]
+    inner  = re_match.groups()
     after  = text[e:]
     return (before, inner, after)
 
@@ -95,66 +106,68 @@ class MarkdownParser:
         self.block_matchers.append(BlockElementMatcher(r_TABLE,         self.parse_table))
 
         self.line_matchers = [ ]
+        self.line_matchers.append(LineElementMatcher(r_EMPTY_LINE, self.skip_line))
+        self.line_matchers.append(LineElementMatcher(r_COMMENT, self.skip_line))
         self.line_matchers.append(LineElementMatcher(r_HEADING, self.parse_heading))
         self.line_matchers.append(LineElementMatcher(r_HRULE,   self.parse_hrule))
         self.line_matchers.append(LineElementMatcher(r_IMAGE,   self.parse_image))
         self.line_matchers.append(LineElementMatcher(r_IMAGE2,  self.parse_image))
 
         self.text_matchers = [ ]
-        self.text_matchers.append(TextElementMatcher(r_INLINE_IMAGE, Image, 0, 0))
-        self.text_matchers.append(TextElementMatcher(r_INLINE_IMAGE2, Image, 0, 0))
-        self.text_matchers.append(TextElementMatcher(r_INLINE_CODE, CodeText, 1, 1))
-        self.text_matchers.append(TextElementMatcher(r_BOLD, BoldText, 2, 2))
-        self.text_matchers.append(TextElementMatcher(r_ITALICS, ItalicsText, 1, 1))
-        self.text_matchers.append(TextElementMatcher(r_STRIKETHROUGH, StrikethroughText, 2, 2))
-        self.text_matchers.append(TextElementMatcher(r_HIGHLIGHT, HighlightText, 2, 2))
+        self.text_matchers.append(TextElementMatcher(r_INLINE_IMAGE, Image, UnparsedArg))
+        self.text_matchers.append(TextElementMatcher(r_INLINE_IMAGE2, Image, UnparsedArg))
+        self.text_matchers.append(TextElementMatcher(r_LINK, Hyperlink, ParsedArg, UnparsedArg, UnparsedArg))
+        self.text_matchers.append(TextElementMatcher(r_ANGLE_LINK, Hyperlink, UnparsedArg))
+        self.text_matchers.append(TextElementMatcher(r_TAG, Tag, UnparsedArg))
+        self.text_matchers.append(TextElementMatcher(r_TAG2, Tag, UnparsedArg))
+        self.text_matchers.append(TextElementMatcher(r_INLINE_CODE_ESC, CodeText, UnparsedArg))
+        self.text_matchers.append(TextElementMatcher(r_INLINE_CODE, CodeText, UnparsedArg))
+        self.text_matchers.append(TextElementMatcher(r_ITALICS, ItalicsText, ParsedArg))
+        self.text_matchers.append(TextElementMatcher(r_BOLD, BoldText, ParsedArg))
+        self.text_matchers.append(TextElementMatcher(r_STRIKETHROUGH, StrikethroughText, ParsedArg))
+        self.text_matchers.append(TextElementMatcher(r_HIGHLIGHT, HighlightText, ParsedArg))
+
+    def close_paragraph(self, paragraph, elements):
+        if paragraph is not None:
+            elements.append(paragraph)
+            paragraph.text_element = self.parse_inline_text(paragraph.text)
+        return None
 
     def parse_markdown(self, line_reader: LineReader) -> List[MarkdownElement]:
         """ Parses all the lines in the given line_reader as markdown
             and returns a list of markdown Elements """
 
         elements = []
+        current_paragraph = None
 
         while not line_reader.at_end():
             # Peek at the next line in the file
             next_line = line_reader.peek()
 
-            # Ignore comments
-            if r_COMMENT.match(next_line):
-                line_reader.skip_line()
-                continue
-
-            # If it is an empty line, only add to paragraphs
-            if r_EMPTY_LINE.match(next_line):
-                if elements and isinstance(elements[-1], Paragraph):
-                    elements[-1].add_empty_line()
-                line_reader.skip_line()
-                continue
-
             # See if the line matches a line element
             line_elem = self.parse_line_elements(next_line)
             if line_elem is not None:
-                elements.append(line_elem)
+                current_paragraph = self.close_paragraph(current_paragraph, elements)
+                if not isinstance(line_elem, EmptySpace):
+                    elements.append(line_elem)
                 line_reader.skip_line()
                 continue
 
             # See if the line matches a block element
             block_elem = self.parse_block_elements(line_reader)
             if block_elem is not None:
+                current_paragraph = self.close_paragraph(current_paragraph, elements)
                 elements.append(block_elem)
                 continue 
 
             # Otherwise, it is a text element, add to a paragraph
-            if elements and isinstance(elements[-1], Paragraph):
-                elements[-1].add_text(next_line)
+            if current_paragraph is None:
+                current_paragraph = Paragraph(next_line)
             else:
-                elements.append(Paragraph(next_line))
+                current_paragraph.add_text(next_line)
             line_reader.skip_line()
 
-        for el in elements:
-            if isinstance(el, Paragraph):
-                self.parse_paragraph(el)
-
+        current_paragraph = self.close_paragraph(current_paragraph, elements)
         return elements
 
     ################################################################
@@ -169,6 +182,9 @@ class MarkdownParser:
             if matcher.pattern.match(line):
                 return matcher.parser(line)
         return None
+
+    def skip_line(self, line: str) -> EmptySpace:
+        return EmptySpace()
 
     def parse_hrule(self, line: str) -> HorizontalRule:
         return HorizontalRule()
@@ -211,11 +227,12 @@ class MarkdownParser:
 
     def parse_block_quote(self, line_reader: LineReader) -> BlockQuote:
         """ Reads until the end of the block quote and returns a BlockQuote object """
-        block_quote = BlockQuote()
+        lines = []
         while not line_reader.at_end() and r_BLOCK_QUOTE.match(line_reader.peek()):
-            line = self.parse_inline_text(line_reader.read_line()[2:])
-            block_quote.add_line(line)
-        return block_quote
+            lines.append(line_reader.read_line()[2:])
+        block_reader = ListReader(lines)
+        block_elems = self.parse_markdown(block_reader)
+        return BlockQuote(block_elems)
 
     def parse_task_list(self, line_reader: LineReader) -> TaskList:
         """ Reads until the end of the task list block and 
@@ -234,38 +251,54 @@ class MarkdownParser:
         
         return TaskList(items)
 
-    def parse_bulleted_list(self, line_reader: LineReader) -> BulletedList:
+    def parse_bulleted_list(self, line_reader: LineReader) -> ListBlock:
         """ Reads until the end of the bulleted list block and 
-            creates and returns a BulletedList object """
-        items = []
-        while not line_reader.at_end():
-            next_line = line_reader.peek()
-            if r_BULLETED_LIST.match(next_line):
-                indent = get_indent(next_line)
-                item_text = next_line.strip()[2:]
-                items.append( (self.parse_inline_text(item_text), indent) )
-            elif not r_EMPTY_LINE.match(next_line):
-                # If we hit a different non-empty line, exit
-                break
-            line_reader.skip_line()
-        
-        return BulletedList(items)
+            creates and returns a ListBlock object """
+        return self.parse_list_block(ListType.UNORDERED, r_BULLETED_LIST, line_reader)
 
-    def parse_numbered_list(self, line_reader: LineReader) -> NumberedList:
+    def parse_numbered_list(self, line_reader: LineReader) -> ListBlock:
         """ Reads until the end of the numbered list block and 
-            creates and returns a NumberedList object """
-        items = []
+            creates and returns a ListBlock object """
+        return self.parse_list_block(ListType.ORDERED, r_NUMBERED_LIST, line_reader)
+
+    def parse_list_block(self, list_type: ListType, line_pattern: re.Pattern, 
+                         line_reader: LineReader) -> ListBlock:
+        """ Reads until the end of the list block and return a ListBlock object """
+        elements = []
+        inner_lines = []
         while not line_reader.at_end():
+            # Keep reading until we hit something that doesn't belong in the list
             next_line = line_reader.peek()
-            if r_NUMBERED_LIST.match(next_line):
-                item_text = next_line[next_line.index('.')+2:].strip()
-                items.append(self.parse_inline_text(item_text))
-            elif not r_EMPTY_LINE.match(next_line):
-                # If we hit a different non-empty line, exit
+            if line_pattern.match(next_line):
+                # Normal ListItem
+                if len(inner_lines) > 0:
+                    # If we are closing an inner block, parse and add it
+                    elements.extend(self.parse_markdown(ListReader(inner_lines)))
+                    inner_lines = []
+
+                item_text = re.sub(line_pattern, '', next_line)
+                item_text = self.parse_inline_text(item_text)
+                elements.append( ListItem(list_type, item_text) )
+
+            elif r_EMPTY_LINE.match(next_line):
+                # Ignore empty lines
+                pass
+
+            elif r_INDENTED.match(next_line):
+                # Read indented lines to parse later
+                next_line = re.sub(r_INDENTED, '', next_line)
+                inner_lines.append(next_line)
+
+            else:
+                # If we hit a non-empty line, exit
                 break
+
             line_reader.skip_line()
         
-        return NumberedList(items)
+        if len(inner_lines) > 0:
+            elements.extend(self.parse_markdown(ListReader(inner_lines)))
+        return ListBlock(list_type, elements)
+
 
     def parse_table(self, line_reader: LineReader) -> Table:
         headings = line_reader.read_line().split("|")[1:-1]
@@ -285,13 +318,6 @@ class MarkdownParser:
     ##############################################################
     # Inline Text Elements - formatted text
 
-    def parse_paragraph(self, p: Paragraph) -> None:
-        """ Will parse each line in the given paragraph as inline text """
-        elements = [ self.parse_inline_text(line) for line in p.lines]
-        if p.lines[-1] == '':
-            elements = elements[:-1]
-        p.set_elements(elements)
-
     def parse_inline_text(self, text: str) -> InlineText:
         """ Will parse a blob of text with inline formatting elements, 
             such as bold, italics, inline code, links, etc """
@@ -301,57 +327,34 @@ class MarkdownParser:
             if re_match is not None:
                 return self.parse_matched_inline_text(text, re_match, matcher)
 
-        link_match = re.search(r_LINK, text)
-        if link_match is not None:
-            return self.parse_hyperlink(text, link_match)
-
-        tag_match = re.search(r_TAG, text)
-        if tag_match is not None:
-            return self.parse_tag(text, tag_match)
-
-
         return RawText(text)
+
+    def collect_matched_args(self, inner_matches, arg_info): 
+        args = []
+        for i, mat in enumerate(inner_matches):
+            if i < len(arg_info):
+                if arg_info[i] is ParsedArg:
+                    args.append(self.parse_inline_text(mat))
+                else:
+                    args.append(mat)
+        while len(args) < len(arg_info):
+            args.append(None)
+        print(args, arg_info)
+        return args
 
     def parse_matched_inline_text(self, text: str, re_match: re.Match, matcher: TextElementMatcher) -> InlineText:
         """ Given a regex match in a text string, splits into the three parts
                 (before, inner, after)
             and parses each one before returning an InlineText containing all three """
-        before, inner, after = split_match(text, re_match, matcher.del_front, matcher.del_end)
-        if matcher.element == Image or matcher.element == CodeText:
-            parsed_inner = inner
-        else:
-            parsed_inner = self.parse_inline_text(inner)
+        before, inner_matches, after = split_match(text, re_match)
+        element_args = self.collect_matched_args(inner_matches, matcher.args)
+        #print(re_match.groups())
+        #if matcher.parse_inner:
+        #    inner_matches = map(self.parse_inline_text, inner_matches)
 
         return InlineText(
             self.parse_inline_text(before), 
-            matcher.element(parsed_inner),
-            self.parse_inline_text(after) 
-        )
-
-    def parse_hyperlink(self, text: str, re_match: re.Match) -> InlineText:
-        """ Given a regex match for a hyperlink, parses the before/after text
-                and splits the inside into the text and address parts
-            returns an InlineText containing the three parts """
-        before, inner, after = split_match(text, re_match, 0, 0)
-
-        close_br = inner.index(']')
-        link_text = inner[1:close_br]
-        link_addr = inner[close_br+2:-1]
-        return InlineText(
-            self.parse_inline_text(before), 
-            Hyperlink(self.parse_inline_text(link_text), link_addr),
-            self.parse_inline_text(after) 
-        )
-
-    def parse_tag(self, text: str, re_match: re.Match) -> InlineText:
-        """ Given a regex match for a tag, parses the before/after text
-                and creates a Tag with the inner part
-            returns an InlineText containing the three parts """
-        before, inner, after = split_match(text, re_match, 0, 0)
-        tag_title = inner.strip()[1:]
-        return InlineText(
-            self.parse_inline_text(before), 
-            Tag(tag_title), 
+            matcher.element(*element_args),
             self.parse_inline_text(after) 
         )
 
