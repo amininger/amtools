@@ -15,11 +15,14 @@ class HtmlRenderer:
         self.renderers[HorizontalRule] = self.render_horizontal_rule
         self.renderers[Heading]        = self.render_heading
         self.renderers[Image]          = self.render_image
+        self.renderers[LinkedImage]    = self.render_linked_image
         self.renderers[TaskList]       = self.render_task_list
         self.renderers[ListBlock]      = self.render_list_block
         self.renderers[ListItem]       = self.render_list_item
         self.renderers[CodeBlock]      = self.render_code_block
         self.renderers[BlockQuote]     = self.render_block_quote
+        self.renderers[Callout]        = self.render_callout
+        self.renderers[Card]           = self.render_card
         self.renderers[Table]          = self.render_table
         self.renderers[Paragraph]      = self.render_paragraph
         self.renderers[InlineText]     = self.render_text_element
@@ -43,7 +46,10 @@ class HtmlRenderer:
 
     def render_heading(self, heading: Heading) -> str:
         rendered_title = self.render_text_element(heading.title)
-        return HtmlTemplates.heading(heading.weight, rendered_title) 
+        args = {}
+        if heading.hid is not None:
+            args['id'] = heading.hid
+        return HtmlTemplates.heading(heading.weight, rendered_title, **args) 
 
     def render_list_block(self, list_block: ListBlock) -> str:
         list_elems = '\n'.join(self.render_element(elem) for elem in list_block.elements)
@@ -76,6 +82,16 @@ class HtmlRenderer:
         rendered_text = "\n".join(self.render_element(elem) for elem in block.elements)
         return HtmlTemplates.blockquote(rendered_text)
 
+    def render_callout(self, callout: Callout) -> str:
+        rendered_title = self.render_text_element(callout.title)
+        rendered_text = "\n".join(self.render_element(elem) for elem in callout.elements)
+        return HtmlTemplates.callout(rendered_title, rendered_text)
+
+    def render_card(self, card:Card) -> str:
+        card_body = "\n".join(self.render_element(elem) for elem in card.elements)
+        return HtmlTemplates.card(card.title, card_body)
+
+
     def render_table(self, table: Table) -> str:
         headings = [ self.render_text_element(h) for h in table.headings ]
         rows = [ [ self.render_text_element(c) for c in row ] for row in table.rows ]
@@ -95,6 +111,8 @@ class HtmlRenderer:
             return self.render_hyperlink(text)
         if isinstance(text, InlineText):
             rendered_children = "".join(self.render_text_element(el) for el in text.elements)
+            if isinstance(text, BoldItalicsText):
+                return HtmlTemplates.bold(HtmlTemplates.italics(rendered_children))
             if isinstance(text, BoldText):
                 return HtmlTemplates.bold(rendered_children)
             if isinstance(text, ItalicsText):
@@ -105,8 +123,6 @@ class HtmlRenderer:
                 return HtmlTemplates.delete(rendered_children)
             if isinstance(text, HighlightText):
                 return HtmlTemplates.mark(rendered_children)
-            if isinstance(text, Image):
-                return self.render_image(text)
             return rendered_children
 
         return str(text)
@@ -115,7 +131,7 @@ class HtmlRenderer:
         return HtmlTemplates.a("#" + tag.title, "", cls="tag red-tag")
 
     def is_relative(self, addr):
-        for pattern in [ 'http', 'www', '/', 'mailto' ]:
+        for pattern in [ 'http', 'www', '/', 'mailto', '#' ]:
             if addr.startswith(pattern):
                 return False
         return True
@@ -125,21 +141,31 @@ class HtmlRenderer:
         link_addr = link.addr
         if self.is_relative(link_addr):
             link_addr = self.context.get_url(link_addr)
-        if link.title is None:
-            return HtmlTemplates.a(link_text, link_addr)
-        else:
-            return HtmlTemplates.a(link_text, link_addr, title=link.title)
+        args = { }
+        if link.title is not None:
+            args['title'] = link.title
+        return HtmlTemplates.a(link_text, link_addr, **args)
     
     def render_image(self, img: Image) -> str:
         img_url = img.filename
         if self.is_relative(img_url):
             img_url = self.context.get_media_url(img_url)
+        args = { }
         if img.width is not None:
             img_width = img.width if '%' in img.width else img.width + "px"
-            return HtmlTemplates.img(img_url, img.alt_text, style=f"width: {img_width};")
-        else:
-            return HtmlTemplates.img(img_url, img.alt_text)
+            args['style'] = f'width: {img_width};'
+        if img.title is not None:
+            args['title'] = img.title
+        return HtmlTemplates.img(img_url, img.alt_text, **args)
 
+    def render_linked_image(self, img: LinkedImage) -> str:
+        rendered_image = self.render_image(img)
+
+        link_addr = img.addr
+        if self.is_relative(link_addr):
+            link_addr = self.context.get_url(link_addr)
+
+        return HtmlTemplates.a(rendered_image, link_addr)
 
 
 

@@ -46,6 +46,9 @@ class Tag(InlineText):
     def __str__(self) -> str:
         return "[#" + self.title + "]"
 
+class BoldItalicsText(InlineText):
+    def __str__(self) -> str:
+        return "[B+I:" + " ".join(map(str, self.elements)) + "]"
 
 class BoldText(InlineText):
     def __str__(self) -> str:

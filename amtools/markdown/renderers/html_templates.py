@@ -118,6 +118,10 @@ f"""<table{info(**kwargs)}>
         return f"<blockquote{info(**kwargs)}>\n{indent(text, 2)}\n</blockquote>"
 
     @staticmethod
+    def callout(title, text, **kwargs):
+        return f"<blockquote{info(**kwargs)}>\n     <strong>{title}</strong>\n{indent(text, 2)}\n</blockquote>"
+
+    @staticmethod
     def img(filename, alt_text, **kwargs):
         return f"<img{info(**kwargs)} src=\"{filename}\" alt=\"{alt_text}\">"
 
@@ -150,5 +154,16 @@ f"""<table{info(**kwargs)}>
     @staticmethod
     def mark(text, **kwargs):
         return f"<mark{info(**kwargs)}>{text}</mark>"
+
+    @staticmethod
+    def card(title, body, **kwargs):
+        return \
+f"""<div class="card">
+    <div class="card-title">{title}</div>
+    <div class="card-body">
+{indent(body, 2)}
+    </div>
+</div>"""
+
 
 

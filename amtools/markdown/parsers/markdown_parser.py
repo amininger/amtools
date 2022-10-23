@@ -8,31 +8,35 @@ from amtools.markdown.elements import *
 r_COMMENT       = re.compile(r"^//")
 r_EMPTY_LINE    = re.compile(r"^[ \t]*$")
 r_INDENTED      = re.compile(r"^(\t|    )")
+r_BOLD_ITALICS  = re.compile(r"\*\*\*([^*]+)\*\*\*")
 r_BOLD          = re.compile(r"\*\*([^*]+)\*\*")
 r_ITALICS       = re.compile(r"_([^_]+)_")
 r_STRIKETHROUGH = re.compile(r"~~([^~]+)~~")
 r_HIGHLIGHT     = re.compile(r"==([^=]+)==")
-r_INLINE_CODE   = re.compile(r"`([^`]+)`")
-r_INLINE_CODE_ESC = re.compile(r"``([^`]([^`]|`[^`])+)``")
+r_CODE          = re.compile(r"`([^`]+)`")
+r_CODE2         = re.compile(r"``([^`]([^`]|`[^`])+)``")
 r_TAG           = re.compile(r"^\#([-/\w]*[a-zA-Z][-/\w]*)\b")
 r_TAG2          = re.compile(r"\s\#([-/\w]*[a-zA-Z][-/\w]*)\b")
 r_LINK          = re.compile(r'\[([^][]*)\]\(([^)("\s]+)\s*("[^"]+")?\)')
 r_ANGLE_LINK    = re.compile(r"<([^<>\s]+\.[^<>\s]+)>")
 #r_INTERNAL_LINK = re.compile(r"\[\[([^][]*)\]\]")
-r_INLINE_IMAGE  = re.compile(r"!\[([^][]*)\]\(([^)(]+)\)")
-r_INLINE_IMAGE2 = re.compile(r"!\[\[([^][]*)\]\]")
+#r_INLINE_IMAGE  = re.compile(r"!\[([^][]*)\]\(([^)(]+)\)")
+#r_INLINE_IMAGE2 = re.compile(r"!\[\[([^][]*)\]\]")
 
-r_HEADING       = re.compile(r"^#{1,6} ")
+r_HEADING       = re.compile(r"^(#{1,6}) ([^{]*)(\{\#[-\w]*[a-zA-Z][-\w]*\})?\s*$")
 r_HRULE         = re.compile(r"^[-=_*]{3,}$")
-r_IMAGE         = re.compile(r"^!\[[^]]*\]\([^)]+\)")
+r_IMAGE         = re.compile("!" + r_LINK.pattern)
 r_IMAGE2        = re.compile(r"^!\[\[[^]]*\]\]")
+r_LINKED_IMAGE  = re.compile("\[" + r_IMAGE.pattern + '\]\(([^)(]+)\)')
 
 r_TABLE         = re.compile(r"^\|([^|]+\|)+ *$")
 r_TASK_LIST     = re.compile(r"^- \[[ ?xX]\] ")
 r_BULLETED_LIST = re.compile(r"^[*-+] ")
 r_NUMBERED_LIST = re.compile(r"^[0-9]{1,3}\. ")
-r_CODE_BLOCK    = re.compile(r"^```")
+r_CODE_BLOCK    = re.compile(r"^```\w*\s*$")
 r_BLOCK_QUOTE   = re.compile(r"^> ")
+r_CALLOUT_BLOCK = re.compile(r"^> \[!([-\w]+)\]\s*(.*)$")
+r_CUSTOM_BLOCK  = re.compile(r"^> \[!!([-\w]+[^]]*)\]\s*$")
 
 TASK_STATUS_SYMBOLS = { 'x': TaskItemStatus.COMPLETE, 'X': TaskItemStatus.COMPLETE, 
                         '?': TaskItemStatus.UNKNOWN,  ' ': TaskItemStatus.INCOMPLETE }
@@ -52,7 +56,7 @@ class UnparsedArg:
 @dataclass 
 class BlockElementMatcher:
     pattern: re.Pattern
-    parser: Callable[[LineReader], MarkdownElement]
+    parser: Callable[[re.Match, LineReader], MarkdownElement]
 
 @dataclass 
 class LineElementMatcher:
@@ -98,6 +102,8 @@ class MarkdownParser:
         
     def __init__(self):
         self.block_matchers = [ ]
+        self.block_matchers.append(BlockElementMatcher(r_CUSTOM_BLOCK, self.parse_custom_block))
+        self.block_matchers.append(BlockElementMatcher(r_CALLOUT_BLOCK, self.parse_callout_block))
         self.block_matchers.append(BlockElementMatcher(r_CODE_BLOCK,    self.parse_code_block))
         self.block_matchers.append(BlockElementMatcher(r_BLOCK_QUOTE,   self.parse_block_quote))
         self.block_matchers.append(BlockElementMatcher(r_TASK_LIST,     self.parse_task_list))
@@ -110,18 +116,20 @@ class MarkdownParser:
         self.line_matchers.append(LineElementMatcher(r_COMMENT, self.skip_line))
         self.line_matchers.append(LineElementMatcher(r_HEADING, self.parse_heading))
         self.line_matchers.append(LineElementMatcher(r_HRULE,   self.parse_hrule))
+        self.line_matchers.append(LineElementMatcher(r_LINKED_IMAGE, self.parse_linked_image))
         self.line_matchers.append(LineElementMatcher(r_IMAGE,   self.parse_image))
         self.line_matchers.append(LineElementMatcher(r_IMAGE2,  self.parse_image))
 
         self.text_matchers = [ ]
-        self.text_matchers.append(TextElementMatcher(r_INLINE_IMAGE, Image, UnparsedArg))
-        self.text_matchers.append(TextElementMatcher(r_INLINE_IMAGE2, Image, UnparsedArg))
+        #self.text_matchers.append(TextElementMatcher(r_INLINE_IMAGE, Image, UnparsedArg))
+        #self.text_matchers.append(TextElementMatcher(r_INLINE_IMAGE2, Image, UnparsedArg))
         self.text_matchers.append(TextElementMatcher(r_LINK, Hyperlink, ParsedArg, UnparsedArg, UnparsedArg))
         self.text_matchers.append(TextElementMatcher(r_ANGLE_LINK, Hyperlink, UnparsedArg))
         self.text_matchers.append(TextElementMatcher(r_TAG, Tag, UnparsedArg))
         self.text_matchers.append(TextElementMatcher(r_TAG2, Tag, UnparsedArg))
-        self.text_matchers.append(TextElementMatcher(r_INLINE_CODE_ESC, CodeText, UnparsedArg))
-        self.text_matchers.append(TextElementMatcher(r_INLINE_CODE, CodeText, UnparsedArg))
+        self.text_matchers.append(TextElementMatcher(r_CODE2, CodeText, UnparsedArg))
+        self.text_matchers.append(TextElementMatcher(r_CODE, CodeText, UnparsedArg))
+        self.text_matchers.append(TextElementMatcher(r_BOLD_ITALICS, BoldItalicsText, ParsedArg))
         self.text_matchers.append(TextElementMatcher(r_ITALICS, ItalicsText, ParsedArg))
         self.text_matchers.append(TextElementMatcher(r_BOLD, BoldText, ParsedArg))
         self.text_matchers.append(TextElementMatcher(r_STRIKETHROUGH, StrikethroughText, ParsedArg))
@@ -145,26 +153,23 @@ class MarkdownParser:
             next_line = line_reader.peek()
 
             # See if the line matches a line element
-            line_elem = self.parse_line_elements(next_line)
-            if line_elem is not None:
+            if line_elem := self.parse_line_elements(next_line):
                 current_paragraph = self.close_paragraph(current_paragraph, elements)
-                if not isinstance(line_elem, EmptySpace):
+                if not isinstance(line_elem, EmptyElement):
                     elements.append(line_elem)
-                line_reader.skip_line()
-                continue
 
             # See if the line matches a block element
-            block_elem = self.parse_block_elements(line_reader)
-            if block_elem is not None:
+            elif block_elem := self.parse_block_elements(line_reader):
                 current_paragraph = self.close_paragraph(current_paragraph, elements)
                 elements.append(block_elem)
-                continue 
+                continue
 
             # Otherwise, it is a text element, add to a paragraph
-            if current_paragraph is None:
+            elif current_paragraph is None:
                 current_paragraph = Paragraph(next_line)
             else:
                 current_paragraph.add_text(next_line)
+
             line_reader.skip_line()
 
         current_paragraph = self.close_paragraph(current_paragraph, elements)
@@ -179,27 +184,37 @@ class MarkdownParser:
             If no patterns match, returns None """
 
         for matcher in self.line_matchers:
-            if matcher.pattern.match(line):
-                return matcher.parser(line)
+            re_match = matcher.pattern.match(line)
+            if re_match is not None:
+                return matcher.parser(line, re_match)
         return None
 
-    def skip_line(self, line: str) -> EmptySpace:
-        return EmptySpace()
+    # Tells the parser to skip this line (a comment, for example)
+    def skip_line(self, line: str, re_match: re.Match) -> EmptyElement:
+        return EmptyElement()
 
-    def parse_hrule(self, line: str) -> HorizontalRule:
+    def parse_hrule(self, line: str, re_match: re.Match) -> HorizontalRule:
         return HorizontalRule()
 
-    def parse_heading(self, line: str) -> Heading:
-        weight = 0
-        while line.startswith('#'):
-            weight += 1
-            line = line[1:]
+    def parse_heading(self, line: str, re_match: re.Match) -> Heading:
+        weight = len(re_match.group(1))
+        title = self.parse_inline_text(re_match.group(2))
+        hid = re_match.group(3)
+        if hid is not None:
+            hid = hid[2:-1] # Remove braces and # symbol
+        return Heading(weight, title, hid)
 
-        title = self.parse_inline_text(line.strip())
-        return Heading(weight, title)
+    def parse_image(self, line: str, re_match: re.Match) -> Image:
+        alt_text, filename, title = re_match.groups()
+        if title is not None:
+            title = title[1:-1] # Remove quotes
+        return Image(alt_text, filename, title)
 
-    def parse_image(self, line: str) -> Image:
-        return Image(line.strip())
+    def parse_linked_image(self, line: str, re_match: re.Match) -> Image:
+        alt_text, filename, title, addr = re_match.groups()
+        if title is not None:
+            title = title[1:-1] # Remove quotes
+        return LinkedImage(alt_text, filename, title, addr)
 
 
     ##############################################################
@@ -213,19 +228,20 @@ class MarkdownParser:
         next_line = line_reader.peek()
 
         for matcher in self.block_matchers:
-            if matcher.pattern.match(next_line):
-                return matcher.parser(line_reader)
+            re_match = matcher.pattern.match(next_line)
+            if re_match is not None:
+                return matcher.parser(re_match, line_reader)
 
         return None
 
-    def parse_code_block(self, line_reader: LineReader) -> CodeBlock:
+    def parse_code_block(self, re_match: re.Match, line_reader: LineReader) -> CodeBlock:
         """ Reads until the end of the code block and returns a CodeBlock object """
         open_line = line_reader.read_line()
         block_text = "\n".join(line_reader.read_lines_until('```', include_end=False))
         line_reader.skip_line()
         return CodeBlock(block_text, open_line[3:])
 
-    def parse_block_quote(self, line_reader: LineReader) -> BlockQuote:
+    def parse_block_quote(self, re_match: re.Match, line_reader: LineReader) -> BlockQuote:
         """ Reads until the end of the block quote and returns a BlockQuote object """
         lines = []
         while not line_reader.at_end() and r_BLOCK_QUOTE.match(line_reader.peek()):
@@ -234,7 +250,30 @@ class MarkdownParser:
         block_elems = self.parse_markdown(block_reader)
         return BlockQuote(block_elems)
 
-    def parse_task_list(self, line_reader: LineReader) -> TaskList:
+    def parse_callout_block(self, re_match: re.Match, line_reader: LineReader) -> Callout:
+        callout_type = re_match.group(1).lower()
+
+        alt_title = re_match.group(2)
+        if alt_title is not None:
+            alt_title = alt_title.strip()
+            if len(alt_title) == 0:
+                alt_title = None
+            else:
+                alt_title = self.parse_inline_text(alt_title)
+
+        line_reader.skip_line()
+        block_quote = self.parse_block_quote(re_match, line_reader)
+        return Callout(callout_type, alt_title, block_quote.elements)
+
+    def parse_custom_block(self, re_match: re.Match, line_reader: LineReader) -> Callout:
+        block_info = re_match.group(1).split("|")
+        block_type = block_info[0].lower()
+        line_reader.skip_line()
+
+        block_quote = self.parse_block_quote(re_match, line_reader)
+        return make_custom_block(block_type, block_quote.elements, *block_info[1:])
+
+    def parse_task_list(self, re_match: re.Match, line_reader: LineReader) -> TaskList:
         """ Reads until the end of the task list block and 
             creates and returns a TaskList object """
         items = []
@@ -251,12 +290,12 @@ class MarkdownParser:
         
         return TaskList(items)
 
-    def parse_bulleted_list(self, line_reader: LineReader) -> ListBlock:
+    def parse_bulleted_list(self, re_match: re.Match, line_reader: LineReader) -> ListBlock:
         """ Reads until the end of the bulleted list block and 
             creates and returns a ListBlock object """
         return self.parse_list_block(ListType.UNORDERED, r_BULLETED_LIST, line_reader)
 
-    def parse_numbered_list(self, line_reader: LineReader) -> ListBlock:
+    def parse_numbered_list(self, re_match: re.Match, line_reader: LineReader) -> ListBlock:
         """ Reads until the end of the numbered list block and 
             creates and returns a ListBlock object """
         return self.parse_list_block(ListType.ORDERED, r_NUMBERED_LIST, line_reader)
@@ -300,7 +339,7 @@ class MarkdownParser:
         return ListBlock(list_type, elements)
 
 
-    def parse_table(self, line_reader: LineReader) -> Table:
+    def parse_table(self, re_match: re.Match, line_reader: LineReader) -> Table:
         headings = line_reader.read_line().split("|")[1:-1]
         table = Table([self.parse_inline_text(heading.strip()) for heading in headings])
 
@@ -339,7 +378,6 @@ class MarkdownParser:
                     args.append(mat)
         while len(args) < len(arg_info):
             args.append(None)
-        print(args, arg_info)
         return args
 
     def parse_matched_inline_text(self, text: str, re_match: re.Match, matcher: TextElementMatcher) -> InlineText:
@@ -348,9 +386,6 @@ class MarkdownParser:
             and parses each one before returning an InlineText containing all three """
         before, inner_matches, after = split_match(text, re_match)
         element_args = self.collect_matched_args(inner_matches, matcher.args)
-        #print(re_match.groups())
-        #if matcher.parse_inner:
-        #    inner_matches = map(self.parse_inline_text, inner_matches)
 
         return InlineText(
             self.parse_inline_text(before), 
