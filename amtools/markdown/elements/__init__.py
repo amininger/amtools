@@ -1,6 +1,6 @@
 
 from .markdown_element import MarkdownElement, EmptyElement
-from .inline_text import LineBreak, RawText, InlineText, BoldItalicsText, BoldText, ItalicsText, CodeText, StrikethroughText, HighlightText, Tag
+from .inline_text import LineBreak, RawText, InlineText, BoldItalicsText, BoldText, ItalicsText, CodeText, LatexText, StrikethroughText, HighlightText, Tag
 from .hyperlink import Hyperlink
 from .horizontal_rule import HorizontalRule
 from .heading import Heading

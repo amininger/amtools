@@ -62,6 +62,10 @@ class CodeText(InlineText):
     def __str__(self) -> str:
         return "[C:" + " ".join(map(str, self.elements)) + "]"
 
+class LatexText(InlineText):
+    def __str__(self) -> str:
+        return "[$:" + " ".join(map(str, self.elements)) + "]"
+
 class StrikethroughText(InlineText):
     def __str__(self) -> str:
         return "[--" + " ".join(map(str, self.elements)) + "--]"

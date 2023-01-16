@@ -118,8 +118,17 @@ f"""<table{info(**kwargs)}>
         return f"<blockquote{info(**kwargs)}>\n{indent(text, 2)}\n</blockquote>"
 
     @staticmethod
-    def callout(title, text, **kwargs):
-        return f"<blockquote{info(**kwargs)}>\n     <strong>{title}</strong>\n{indent(text, 2)}\n</blockquote>"
+    def callout(cls, symbol, title, text, **kwargs):
+        return \
+f"""<div class="callout {cls}">
+    <div class="callout-title">
+        <span class="icon">{symbol}</span>
+        <span class="text">{title}</span>
+    </div>
+    <div class="callout-content">
+        {indent(text, 2)}
+    </div>
+</div>"""
 
     @staticmethod
     def img(filename, alt_text, **kwargs):
@@ -146,6 +155,10 @@ f"""<table{info(**kwargs)}>
     def code(text, **kwargs):
         text = text.replace('<', '&lt;').replace('>', '&gt;')
         return f"<code{info(**kwargs)}>{text}</code>"
+
+    @staticmethod
+    def latex(text, **kwargs):
+        return f"$$$_{text}_$$$"
 
     @staticmethod
     def delete(text, **kwargs):

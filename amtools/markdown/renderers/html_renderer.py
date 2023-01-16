@@ -85,7 +85,7 @@ class HtmlRenderer:
     def render_callout(self, callout: Callout) -> str:
         rendered_title = self.render_text_element(callout.title)
         rendered_text = "\n".join(self.render_element(elem) for elem in callout.elements)
-        return HtmlTemplates.callout(rendered_title, rendered_text)
+        return HtmlTemplates.callout(callout.type, callout.symbol, rendered_title, rendered_text)
 
     def render_card(self, card:Card) -> str:
         card_body = "\n".join(self.render_element(elem) for elem in card.elements)
@@ -119,6 +119,8 @@ class HtmlRenderer:
                 return HtmlTemplates.italics(rendered_children)
             if isinstance(text, CodeText):
                 return HtmlTemplates.code(rendered_children)
+            if isinstance(text, LatexText):
+                return HtmlTemplates.latex(rendered_children)
             if isinstance(text, StrikethroughText):
                 return HtmlTemplates.delete(rendered_children)
             if isinstance(text, HighlightText):
