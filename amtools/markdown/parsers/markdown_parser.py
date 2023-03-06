@@ -130,14 +130,14 @@ class MarkdownParser:
         self.text_matchers.append(TextElementMatcher(r_ANGLE_LINK, Hyperlink, UnparsedArg))
         self.text_matchers.append(TextElementMatcher(r_TAG, Tag, UnparsedArg))
         self.text_matchers.append(TextElementMatcher(r_TAG2, Tag, UnparsedArg))
-        self.text_matchers.append(TextElementMatcher(r_CODE2, CodeText, UnparsedArg))
-        self.text_matchers.append(TextElementMatcher(r_CODE, CodeText, UnparsedArg))
         self.text_matchers.append(TextElementMatcher(r_LATEX_MATH, LatexText, UnparsedArg))
         self.text_matchers.append(TextElementMatcher(r_BOLD_ITALICS, BoldItalicsText, ParsedArg))
         self.text_matchers.append(TextElementMatcher(r_ITALICS, ItalicsText, ParsedArg))
         self.text_matchers.append(TextElementMatcher(r_BOLD, BoldText, ParsedArg))
         self.text_matchers.append(TextElementMatcher(r_STRIKETHROUGH, StrikethroughText, ParsedArg))
         self.text_matchers.append(TextElementMatcher(r_HIGHLIGHT, HighlightText, ParsedArg))
+        self.text_matchers.append(TextElementMatcher(r_CODE2, CodeText, UnparsedArg))
+        self.text_matchers.append(TextElementMatcher(r_CODE, CodeText, UnparsedArg))
 
     def close_paragraph(self, paragraph, elements):
         if paragraph is not None:

@@ -64,7 +64,7 @@ class HtmlRenderer:
 
     def render_task_list(self, t_list: TaskList) -> str:
         list_items = '\n'.join(self.render_task_list_item(li) for li in t_list.items)
-        return HtmlTemplates.unordered_list(list_items, cls="contains-task-list")
+        return HtmlTemplates.unordered_list(list_items, cls="task-list")
 
     def render_task_list_item(self, li: TaskItem) -> str:
         item_text = self.render_text_element(li.text)
