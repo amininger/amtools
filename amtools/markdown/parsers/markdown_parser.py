@@ -29,6 +29,7 @@ r_HEADING       = re.compile(r"^(#{1,6}) ([^{]*)(\{\#[-\w]*[a-zA-Z][-\w]*\})?\s*
 r_HRULE         = re.compile(r"^[-=_*]{3,}$")
 r_IMAGE         = re.compile("!" + r_LINK.pattern)
 r_IMAGE2        = re.compile("!" + r_INTERNAL_LINK.pattern)
+r_IMAGE3        = re.compile("!\[\[([^][]*)\]\]")
 r_LINKED_IMAGE  = re.compile("\[" + r_IMAGE.pattern + '\]\(([^)(]+)\)')
 
 r_TABLE         = re.compile(r"^\|([^|]+\|)+ *$")
@@ -121,6 +122,7 @@ class MarkdownParser:
         self.line_matchers.append(LineElementMatcher(r_LINKED_IMAGE, self.parse_linked_image))
         self.line_matchers.append(LineElementMatcher(r_IMAGE,   self.parse_image))
         self.line_matchers.append(LineElementMatcher(r_IMAGE2,  self.parse_image))
+        self.line_matchers.append(LineElementMatcher(r_IMAGE3,  self.parse_embedded_image))
 
         self.text_matchers = [ ]
         #self.text_matchers.append(TextElementMatcher(r_INLINE_IMAGE, Image, UnparsedArg))
@@ -207,6 +209,14 @@ class MarkdownParser:
         if hid is not None:
             hid = hid[2:-1] # Remove braces and # symbol
         return Heading(weight, title, hid)
+
+    def parse_embedded_image(self, line: str, re_match: re.Match) -> Image:
+        info = re_match.groups()[0]
+        filename = info
+        if "|" in info:
+            filename = info.split("|")[0]
+
+        return Image(info, filename, filename.split('.')[0])
 
     def parse_image(self, line: str, re_match: re.Match) -> Image:
         alt_text, filename, title = re_match.groups()
