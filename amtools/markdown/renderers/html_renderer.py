@@ -23,6 +23,7 @@ class HtmlRenderer:
         self.renderers[BlockQuote]     = self.render_block_quote
         self.renderers[Callout]        = self.render_callout
         self.renderers[Card]           = self.render_card
+        self.renderers[LinkList]       = self.render_link_list
         self.renderers[Table]          = self.render_table
         self.renderers[Paragraph]      = self.render_paragraph
         self.renderers[InlineText]     = self.render_text_element
@@ -51,12 +52,12 @@ class HtmlRenderer:
             args['id'] = heading.hid
         return HtmlTemplates.heading(heading.weight, rendered_title, **args) 
 
-    def render_list_block(self, list_block: ListBlock) -> str:
+    def render_list_block(self, list_block: ListBlock, **kwargs) -> str:
         list_elems = '\n'.join(self.render_element(elem) for elem in list_block.elements)
         if list_block.list_type == ListType.ORDERED:
-            return HtmlTemplates.ordered_list(list_elems) 
+            return HtmlTemplates.ordered_list(list_elems, **kwargs) 
         else:
-            return HtmlTemplates.unordered_list(list_elems) 
+            return HtmlTemplates.unordered_list(list_elems, **kwargs) 
 
     def render_list_item(self, li, **kwargs) -> str:
         rendered_text = self.render_text_element(li.text)
@@ -91,6 +92,15 @@ class HtmlRenderer:
         card_body = "\n".join(self.render_element(elem) for elem in card.elements)
         return HtmlTemplates.card(card.title, card_body)
 
+    def render_link_list(self, link_list:LinkList) -> str:
+        list_items = []
+        for p in link_list.elements:
+            for elem in p.text_element.elements:
+                if isinstance(elem, RawText) and len(elem.raw_text().strip()) > 0:
+                    list_items.append(HtmlTemplates.list_item(elem.raw_text().strip()))
+                elif isinstance(elem, Hyperlink):
+                    list_items.append(self.render_hyperlink(elem, lambda t: f"<li>{t}</li>"))
+        return HtmlTemplates.unordered_list("\n".join(list_items), cls="link-list", style="--col_accent: var(--col_accent1)") 
 
     def render_table(self, table: Table) -> str:
         headings = [ self.render_text_element(h) for h in table.headings ]
@@ -138,8 +148,10 @@ class HtmlRenderer:
                 return False
         return True
     
-    def render_hyperlink(self, link: Hyperlink) -> str:
+    def render_hyperlink(self, link: Hyperlink, wrap_text: callable = None) -> str:
         link_text = self.render_text_element(link.text)
+        if wrap_text:
+            link_text = wrap_text(link_text)
         link_addr = link.addr
         if self.is_relative(link_addr):
             link_addr = self.context.get_url(link_addr)
