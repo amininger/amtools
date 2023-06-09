@@ -279,7 +279,7 @@ class MarkdownParser:
         block_quote = self.parse_block_quote(re_match, line_reader)
         return Callout(callout_type, alt_title, block_quote.elements)
 
-    def parse_custom_block(self, re_match: re.Match, line_reader: LineReader) -> Callout:
+    def parse_custom_block(self, re_match: re.Match, line_reader: LineReader) -> MarkdownElement:
         block_info = re_match.group(1).split("|")
         block_type = block_info[0].lower()
         line_reader.skip_line()
