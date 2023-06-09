@@ -1,0 +1,101 @@
+# xhtml2pdf
+
+## Basics
+
+You can defined **page** settings, each of which has **frames** for laying out content
+
+### Pages
+
+```css
+@page {
+    size: a4 portrait;
+    margin: 2cm; /** can also specify margin-top, margin-left, etc **/
+    background-image: url('');
+}
+```
+
+### Frames
+
+Frames go inside a `@page`
+```css
+@page {
+	/*** A4: 595 × 842 points ***/
+    size: a4 portrait;
+    @frame {
+        left: 50pt;
+        width: 495pt;
+        top: 50pt;
+        height: 742pt;
+        /** you can also set margin properties **/
+    }
+}
+
+### Defining Multi-Frame Pages
+
+You can define multiple frames per page, 
+such as adding a static footer, 
+or having 2 columns
+
+```css
+@page {
+    size: a4 portrait;
+    @frame content_frame {          /* Content Frame */
+        left: 50pt; width: 512pt; top: 90pt; height: 632pt;
+    }
+    @frame footer_frame {           /* Another static Frame */
+        -pdf-frame-content: footer_content;
+        left: 50pt; width: 512pt; top: 772pt; height: 20pt;
+    }
+}
+```
+
+```html 
+    <!-- Content for Static Frame 'footer_frame' -->
+    <div id="footer_content">(c) - page <pdf:pagenumber>
+        of <pdf:pagecount>
+    </div>
+
+    <!-- HTML Content -->
+    To PDF or not to PDF
+```
+
+## Special HTML Tags
+
+### `<pdf:nexttemplate name="page_template_name>`
+Sets the page template for the next page
+
+### `<pdf:nextpage>`
+Forces a new page
+
+### `<pdf:pagenumber>`
+Replaced with the current page number
+
+### `<pdf:pagecount>`
+Prints the total page count
+
+### `<pdf:toc>`
+Creates a table of contents (put inside a div!)
+
+
+## CSS
+
+**Supported Properties**
+* background-color
+* border and margin
+* font-family, font-size, font-style, font-weight, text-decoration
+* width, height, line-height
+* page-break-after: always, page-break-before: always
+* list-style-type
+* text-align, vertical-align
+
+
+### Special CSS Properties
+
+#### `-pdf-keep-with-next: true`
+* true: forces the next element to be in the same frame
+* false: will separate the elements across frames
+
+#### `-pdf-page-break`
+Inserts a page break
+
+

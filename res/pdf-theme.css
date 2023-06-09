@@ -1,0 +1,8 @@
+@page {
+    size: A4 portrait;
+    margin: 2cm;
+    @frame content_frame {
+        -pdf-frame-border: 1;
+    }
+}
+

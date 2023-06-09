@@ -3,6 +3,7 @@ import os
 from .fsutil import fsutil
 
 class FileContext:
+    DEFAULT = None
     def __init__(self, working_dir: str='', url_path: str='/', media_path: str='/media'):
         """ File paths are relative to some root directory
             A FileContext contains different options for the root path
@@ -27,4 +28,6 @@ class FileContext:
         return FileContext(os.path.join(self.working_dir, dir_path), 
                             os.path.join(self.url_path, dir_path),
                             os.path.join(self.media_path, dir_path))
+
+FileContext.DEFAULT = FileContext("", "", "")
 
