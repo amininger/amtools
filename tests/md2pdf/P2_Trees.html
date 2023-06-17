@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P2_Trees.html</title>
+    <style>
+    /*** A4: 595 × 842 points ***/
+    @page { 
+    	size: A4 portrait;
+    	margin: 2cm;
+    	/**
+    	@frame content_frame {
+    		left: 50pt;
+    		width: 495pt;
+    		top: 50pt;
+    		height: 742pt;
+    		-pdf-frame-border: 1;
+    	}
+    	**/
+    }
+    
+    /**@font-face { font-family: Metropolis; font-weight: 400; src: url('/home/aaron/workspace/python/amtools/res/fonts/Metropolis-Regular.otf'); }**/
+    /**@font-face { font-family: Metropolis; font-weight: 700; src: url('/home/aaron/workspace/python/amtools/res/fonts/Metropolis-Bold.otf'); }**/
+    
+    /**@font-face { font-family: ZillaSlab; font-weight: 200; src: url('/home/aaron/workspace/python/amtools/res/fonts/ZillaSlab-Light.ttf'); }**/
+    @font-face { font-family: ZillaSlab; src: url('/home/aaron/workspace/python/amtools/res/fonts/ZillaSlab-Regular.ttf'); }
+    @font-face { font-family: ZillaSlab_Bold; src: url('/home/aaron/workspace/python/amtools/res/fonts/ZillaSlab-Bold.ttf'); }
+    @font-face { font-family: ZillaSlab_Italic; src: url('/home/aaron/workspace/python/amtools/res/fonts/ZillaSlab-Italic.ttf'); }
+    
+    @font-face { font-family: Ubuntu_Italic; src: url('/home/aaron/workspace/python/amtools/res/fonts/Ubuntu-Italic.ttf'); }
+    
+    
+    @font-face { font-family: RobotoMono; src: url('/home/aaron/workspace/python/amtools/res/fonts/RobotoMono-Regular.ttf'); }
+    @font-face { font-family: RobotoMono_Bold; src: url('/home/aaron/workspace/python/amtools/res/fonts/RobotoMono-Bold.ttf'); }
+    
+    /**@font-face { font-family: Alfa; src: url('/home/aaron/workspace/python/amtools/res/fonts/AlfaSlabOne-Regular.ttf'); }**/
+    /**@font-face { font-family: Bungee; src: url('/home/aaron/workspace/python/amtools/res/fonts/Bungee-Regular.ttf'); }**/
+    @font-face { font-family: Calistoga; src: url('/home/aaron/workspace/python/amtools/res/fonts/Calistoga-Regular.ttf'); }
+    @font-face { font-family: Raleway; src: url('/home/aaron/workspace/python/amtools/res/fonts/Raleway-Regular.ttf'); }
+    
+    pdftoc {
+        display: block;
+    }
+    	
+    html {
+    	/**
+    	--font_heading: "Calistoga", serif;
+    	--font_ui: "ZillaSlab", serif;
+    	--font_text: "ZillaSlab", sans-serif;
+    	**/
+        font-family: ZillaSlab, serif;
+        font-size: 12pt;
+        font-weight: normal;
+        color: #000000;
+    }
+    
+    h1,h2,h3,h4,h5,h6 {
+        display: block;
+        font-family: Calistoga, serif;
+    }
+    h1,h2,h3 {
+    	margin: 1em 0;
+        -pdf-outline: true;
+        -pdf-outline-open: false;
+    }
+    h4,h5,h6 {
+    	margin: 0.5em 0;
+        -pdf-outline: false;
+    }
+    
+    h1 {
+        /*18px via YUI Fonts CSS foundation*/
+        font-size:138.5%;
+        -pdf-outline-level: 0;
+    }
+    
+    h2 {
+        /*16px via YUI Fonts CSS foundation*/
+        font-size:123.1%;
+        -pdf-outline-level: 1;
+    }
+    
+    h3 {
+        /*14px via YUI Fonts CSS foundation*/
+        font-size:108%;
+        -pdf-outline-level: 2;
+    }
+    
+    /*** Paragraphs and Text ***/
+    
+    p {
+        display: block;
+        margin: 0.5em 0;
+        line-height: 1.4;
+    }
+    
+    strong, b {
+        font-family: ZillaSlab_Bold, serif;
+    }
+    
+    em, i {
+        font-family: ZillaSlab_Italic, serif;
+    }
+    
+    /***** links *****/
+    a {
+        text-decoration: underline;
+        color: blue;
+        font-family: RobotoMono_Bold;
+        font-size: 0.8em;
+    }
+    
+    /***** images *****/
+    
+    img {
+    	margin: 1.5em 0;
+    	display: block;
+    	width: auto;
+    	max-width: 100%; 
+    }
+    
+    
+    /***** horizontal line *****/
+    
+    hr {
+        display: block;
+    	width: 100%;
+    	border: none;
+    	border-bottom: 2px dashed rgb(210, 105, 100);
+    	margin: 1.0em 0; 
+    }
+    
+    /***** lists *****/
+    
+    ul, ol {
+        display: block;
+    	margin: 0;
+    	line-height: 1.6;
+    }
+    
+    li {
+        margin: 0;
+    }
+    
+    ul ul, ul ol, ol ul, ol ol {
+        font-size: 0.9em;
+        margin-left: 2em;
+    }
+    
+    
+    /***** blockquotes *****/
+    blockquote {
+        display: block;
+    	width: 100%;
+    	margin: 1.2em 0.2em;
+        border-right: 1pt solid #AAA;
+        border-bottom: 1pt solid #AAA;
+        border-left: 5pt solid rgb(210, 105, 100);
+    	padding: 0.5em 1.0em 0.1em 1.0em;
+    	background-color: #EEE;
+        font-family: Ubuntu_Italic, sans-serif;
+        color: #444;
+    }
+    
+    /***** code/pre *****/
+    pre {
+    	margin: 1.2em 0;
+    	width: 100%;
+    	padding: 0.6em 0.9em;
+    	white-space: pre;
+    
+        border-right: 1pt solid #AAA;
+        border-bottom: 1pt solid #AAA;
+        border-left: 5pt solid rgb(210, 105, 100);
+    
+    	background: #EEE;
+    	color: #444;
+    }
+    
+    code {
+    	margin: 0 1.2em;
+    	padding: 0 0.2em;
+    	background: #EEE;
+    	font-size: 0.8em;
+        font-family: RobotoMono_Bold, monospace;
+    }
+    
+    pre code {
+    	margin: 0 1.2em;
+    	padding: 0 0.2em;
+    	background: #EEE;
+    	font-size: 0.8em;
+        font-family: RobotoMono, monospace;
+    }
+    
+    /***** tables *****/
+    
+    table {
+        display: block;
+    	margin: 1.5em 0;
+    	width: 100%;
+    	padding: 0;
+    }
+    
+    tr {
+    	width: 100%;
+    	min-height: 1em;
+        border-left: 1px solid #888;
+        border-right: 1px solid #888;
+        border-left: 1px solid rgb(210, 105, 100);
+        border-right: 1px solid rgb(210, 105, 100);
+    }
+    tr.head {
+        background-color: rgb(210, 105, 100);
+        color: white;
+        font-family: Calistoga;
+    }
+    tr.odd {
+    	background-color: #DDD;
+    }
+    tr.even {
+    	background-color: #EEE;
+    }
+    tr.first {
+        border-top: 1px solid rgb(210, 105, 100);
+    }
+    tr.last {
+        border-bottom: 1px solid rgb(210, 105, 100);
+    }
+    
+    
+    td {
+        padding: 0.2em 0.2em 0.0em 0.2em;
+    }
+    
+    /**
+    th {
+    	padding: 0.4em 0.5em;
+    	color: #FFF;
+    	font-weight: bold;
+    	text-align: left;
+    }
+    
+    thead {
+        display: block;
+    
+    	margin: 0;
+    	width: 100%;
+    	padding: 0.2em 0;
+    
+        border: 1px solid blue;
+    
+    	display: flex;
+    }
+    thead code {
+        background-color: inherit;
+        color: inherit;
+    }
+    
+    tbody {
+    	margin: 0;
+    	width: 100%;
+    	border: 1px solid #888;
+    	display: block;
+    }
+    
+    
+    
+    td {
+    	padding: 0.4em 0.5em;
+    	color: #DDD;
+    	text-align: left;
+    }
+    **/
+    
+    
+    /** Class for defining a page-break space (create a div with &nbsp;) **/
+    .pb {
+    	margin: 0;	padding: 0;
+    	font-size: 0; line-height: 0;
+    	page-break-after: always;
+    	background-color: red;
+    }
+    
+    /** Classes for adding vertical space (create a div with &nbsp;) **/
+    .vs-xs, .vs-sm, .vs-md, .vs-lg, .vs-xl, .vs-xxl {
+    	margin: 0; 
+    }
+    .vs-xs {	padding-top: 0.00in;	}
+    .vs-sm {	padding-top: 0.25in;	}
+    .vs-md {	padding-top: 0.60in;	}
+    .vs-lg {	padding-top: 1.20in;	}
+    .vs-xl {	padding-top: 2.00in;	}
+    .vs-xxl {	padding-top: 3.20in;	}
+    
+    
+    
+    
+    </style>
+    <script>
+    
+    </script>
+</head>
+<body>
+    <div class="content">
+<hr>
+<p>
+    title: 'Project 2: BST'
+    read_perm: 'all'
+</p>
+<hr>
+<h1>Project 2: Binary Search Tree</h1>
+<h3><strong>Data Structures and Algorithms</strong></h3>
+<p>
+    <strong>Due:</strong> End of exams (around May 7) 
+    <br>
+    <strong>Submit:</strong> Email the completed file BinarySearchTree.java
+</p>
+<p>
+    In this project, you will implement a <em>binary search tree</em>: a special type of binary tree that is used to quickly find, insert, and remove elements.
+</p>
+<p>
+    <strong>Requirements:</strong>
+</p>
+<ul>
+    <li>The class <code>BinarySearchTree</code> (BST) should use the appropriate binary search tree structure</li>
+    <li>The BST should implement all the listed methods</li>
+    <li>Your code should never crash</li>
+    <li>You should follow the Java Coding Standards document</li>
+</ul>
+<p>
+    <div class="vs-sm"></div>
+</p>
+<p>
+    <hr>
+</p>
+<h2>Binary Search Tree</h2>
+<p>
+    <strong>Note:</strong> See the BST demo at <a href="https://visualgo.net/en/bst">https://visualgo.net/en/bst</a>
+</p>
+<p>
+    A binary search tree is a binary tree where:
+</p>
+<ul>
+    <li>every node has (at most) 2 children</li>
+    <li>for every node, all nodes in the left subtree are smaller</li>
+    <li>for every node, all nodes in the right subtree are larger</li>
+</ul>
+<img style="width: 200px;" src="BST.png" alt="BST.png">
+<p>
+    <div class="pb"></div>
+</p>
+<h2>Representation</h2>
+<p>
+    The tree is made up of Node objects, each node should consist of the following:
+</p>
+<pre><code>class Node {
+    public int data;
+    public Node left = null;
+    public Node right = null;
+
+    Node(int data) {
+        this.data = data;
+    }
+}</code></pre>
+<p>
+    The tree itself only has a reference to the root node.
+</p>
+<p>
+    <hr>
+</p>
+<h2>BST Search</h2>
+<p>
+    To search for a value, we do a recursive search with the nodes.
+</p>
+<ul>
+    <li>If the current node's data is equal to the query, return true.</li>
+    <ul>
+        <li>Otherwise, if the node's data is greater than the query, recursively search the left subtree</li>
+        <li>Otherwise, if the node's data is smaller than the query, recursively search the right subtree</li>
+    </ul>
+    <li>If we reach a null node, we return false. </li>
+</ul>
+<blockquote>
+    <p>
+        This is a block quote by a great man
+        This is a block quote by a great man
+        This is a block quote by a great man
+        This is a block quote by a great man
+        This is a block quote by a great man
+        This is a block quote by a great man
+    </p>
+</blockquote>
+<p>
+    <em>Steps:</em>
+</p>
+<ol>
+    <li>Read Something</li>
+    <li>Plan Something</li>
+    <ol>
+        <li>Sketch</li>
+        <li>Outline</li>
+        <li>Write</li>
+    </ol>
+    <li>Build Something</li>
+</ol>
+<table>
+  <thead>
+        <tr class="head first">
+            <th style="width: 33%;">Name</th>
+            <th style="width: 9%;">Age</th>
+            <th style="width: 56%;">Occupation</th>
+        </tr>
+  </thead>
+  <tbody>
+        <tr class="even">
+            <td style="width: 33%;">Dr. Aaron Mininger</td>
+            <td style="width: 9%;">34</td>
+            <td style="width: 56%;">Profesor of Computer Engineering</td>
+        </tr>
+        <tr class="odd">
+            <td style="width: 33%;">Abe Lawson</td>
+            <td style="width: 9%;">3</td>
+            <td style="width: 56%;">Being a toddler</td>
+        </tr>
+        <tr class="even last">
+            <td style="width: 33%;">Yuri Kim</td>
+            <td style="width: 9%;">31</td>
+            <td style="width: 56%;">The best girlfriend in the world</td>
+        </tr>
+  </tbody>
+</table>
+
+<img style="width: 4.5in;" src="BSTsearch.png" alt="BSTsearch.png">
+<p>
+    <div class="pb"></div>
+</p>
+<h2>Writing BST Methods</h2>
+<p>
+    We often use recursion to write BST method. These will have 2 versions of the method:
+</p>
+<ul>
+    <li>The public method which the users can call</li>
+    <li>A private method which takes a Node object and is recursive</li>
+</ul>
+<p>
+    For example, consider implementing the method <code>numLeaves()</code>, which returns the number of leaf nodes in the tree (a leaf is a node with 0 children):
+</p>
+<pre><code>public int numLeaves() {
+    return numLeaves(this.root);
+}
+
+private int numLeaves(Node node) {
+    if (node == null) {
+        return 0;
+    } else if (node.left == null && node.right == null) {
+        return 1;
+    } else {
+        return numLeaves(node.left) + numLeaves(node.right);
+    }
+}</code></pre>
+<p>
+    The recursive version has 2 base cases:
+</p>
+<ul>
+    <li>The node is null, so return 0</li>
+    <li>The node is a leaf, so return 1</li>
+</ul>
+<p>
+    The recursive step is to sum the number of leaves in the left subtree and the right subtree.
+</p>
+<p>
+    <div style="page-break-after: always"></div>
+</p>
+<h1> BinarySearchTree Methods</h1>
+<p>
+    The <code>BinarySearchTree</code> must implement the following methods:
+</p>
+<p>
+    <code>int size()</code> 
+    <br>
+    Returns the count of how many nodes are in the tree
+</p>
+<p>
+    <code>boolean isEmpty()</code> 
+    <br>
+    Returns true if the tree is empty
+</p>
+<p>
+    <code>int height()</code> 
+    <br>
+    Returns the height of the tree (the maximum depth)
+</p>
+<p>
+    <code>boolean contains(int x)</code> 
+    <br>
+    Returns true if the tree contains the given value (false if not).
+</p>
+<p>
+    <code>int min()</code> 
+    <br>
+    Returns the smallest value in the tree
+</p>
+<p>
+    <code>int max()</code> 
+    <br>
+    Returns the largest value in the tree
+</p>
+<p>
+    <code>void insert(int x)</code>
+    <br>
+    Inserts the integer x into the tree. If it already exists, nothing happens.
+</p>
+<p>
+    <code>void clear()</code> 
+    <br>
+    Removes all items from the tree
+</p>
+<p>
+    <code>List&lt;Integer&gt; toList()</code> 
+    <br>
+    Returns a List that contains all the integers in the tree in sorted order 
+    <br>
+    Hint: Have the recursive method take a list as a parameter and add to it
+</p>
+<p>
+    <code>String toString()</code> 
+    <br>
+    Returns a string that contains all the integers in the tree in sorted order
+</p>
+    </div>
+</body>
+</html>

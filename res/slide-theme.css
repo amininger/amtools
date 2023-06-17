@@ -1,0 +1,101 @@
+/* 
+@theme ucbc
+@size 4:3 1024px 768px
+*/
+
+@import 'base';
+
+/**@font-face { font-family: Metropolis; font-weight: 400; src: url('/home/aaron/workspace/python/amtools/res/Metropolis-Regular.otf'); }**/
+/**@font-face { font-family: Metropolis; font-weight: 700; src: url('/home/aaron/workspace/python/amtools/res/Metropolis-Bold.otf'); }**/
+
+@font-face { font-family: ZillaSlab; font-weight: 200; src: url('/home/aaron/workspace/python/amtools/res/ZillaSlab-Light.ttf'); }
+@font-face { font-family: ZillaSlab; font-weight: 400; src: url('/home/aaron/workspace/python/amtools/res/ZillaSlab-Regular.ttf'); }
+@font-face { font-family: ZillaSlab; font-weight: 700; src: url('/home/aaron/workspace/python/amtools/res/ZillaSlab-Bold.ttf'); }
+
+/**@font-face { font-family: Alfa; src: url('/home/aaron/workspace/python/amtools/res/AlfaSlabOne-Regular.ttf'); }**/
+/**@font-face { font-family: Bungee; src: url('/home/aaron/workspace/python/amtools/res/Bungee-Regular.ttf'); }**/
+/**@font-face { font-family: Calistoga; src: url('/home/aaron/workspace/python/amtools/res/Calistoga-Regular.ttf'); }**/
+@font-face { font-family: Raleway; src: url('/home/aaron/workspace/python/amtools/res/Raleway-Regular.ttf'); }
+
+:root {
+	--WHITE: rgb(255, 255, 255);
+	--DARK_GRAY: rgb(44, 44, 44);
+	--RUST: rgb(203, 77, 73);
+
+	--col_background: var(--WHITE);
+	--col_text: var(--DARK_GRAY);
+	--col_accent: var(--RUST);
+
+	--header-height: 64px;
+	--header-size: 56px;
+
+	--footer-height: 0.8em;
+
+	--font-size: 32px;
+	--h2-size: 2em;
+	--h3-size: 1.5em;
+	--footer-size: 0.7em;
+}
+
+:root.title, :root.transition {
+	--col_background: var(--RUST);
+	--col_text: var(--WHITE);
+	--col_accent: var(--DARK_GRAY);
+}
+
+section {
+	margin: 0;
+
+	padding: calc(var(--header-height)+40px) 20px calc(var(--footer-height)+20px) 20px;
+
+	background-color: var(--col_background);
+	color: var(--col_text);
+
+	font-size: var(--font-size);
+	font-family: Raleway, Geneva, sans-serif;
+}
+h1, h2, h3 {
+	font-family: ZillaSlab, Geneva, sans-serif;
+	font-weight: 200;
+}
+
+h1 {
+	margin: 0;
+
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: var(--header-height);
+
+	border-bottom: solid 3px rgb(44, 44, 44);
+
+	padding: 20px;
+
+	background-color: var(--RUST);
+	color: var(--WHITE);
+	font-size: var(--header-size);
+}
+
+footer {
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	width: 100%;
+	height: var(--footer-height);
+
+
+	background-color: var(--DARK_GRAY);
+	background-image: url('/home/aaron/workspace/python/amtools/res/ucbc24.png');
+	background-position: left 8px top 3px;
+	background-repeat: no-repeat;
+
+	padding: 3px;
+	padding-left: 40px;
+
+	font-family: ZillaSlab;
+	font-size: var(--footer-size);
+	color: var(--WHITE);
+}
+
+

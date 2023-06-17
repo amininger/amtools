@@ -156,11 +156,9 @@ blockquote {
     display: block;
 	width: 100%;
 	margin: 1.2em 0.2em;
-    border-right: 1pt solid #AAA;
-    border-bottom: 1pt solid #AAA;
-    border-left: 5pt solid rgb(210, 105, 100);
+    border: 1pt solid #AAA;
+    border-left: 5pt solid #888;
 	padding: 0.5em 1.0em 0.1em 1.0em;
-	background-color: #EEE;
     font-family: Ubuntu_Italic, sans-serif;
     color: #444;
 }
@@ -172,18 +170,16 @@ pre {
 	padding: 0.6em 0.9em;
 	white-space: pre;
 
-    border-right: 1pt solid #AAA;
-    border-bottom: 1pt solid #AAA;
-    border-left: 5pt solid rgb(210, 105, 100);
+    border: 1pt solid #AAA;
+    border-left: 5pt solid #888;
 
-	background: #EEE;
 	color: #444;
 }
 
 code {
 	margin: 0 1.2em;
 	padding: 0 0.2em;
-	background: #EEE;
+	background-color: #EEE;
 	font-size: 0.8em;
     font-family: RobotoMono_Bold, monospace;
 }
@@ -191,9 +187,9 @@ code {
 pre code {
 	margin: 0 1.2em;
 	padding: 0 0.2em;
-	background: #EEE;
 	font-size: 0.8em;
     font-family: RobotoMono, monospace;
+	background-color: none;
 }
 
 /***** tables *****/
@@ -208,25 +204,24 @@ table {
 tr {
 	width: 100%;
 	min-height: 1em;
-    border-left: 1px solid rgb(210, 105, 100);
-    border-right: 1px solid rgb(210, 105, 100);
+    border-left: 1px solid #888;
+    border-right: 1px solid #888;
+    border-top: 1px solid #CCC;
+    border-bottom: 1px solid #CCC;
 }
 tr.head {
-    background-color: rgb(210, 105, 100);
-    color: white;
     font-family: Calistoga;
 }
 tr.odd {
-	background-color: #DDD;
 }
 tr.even {
-	background-color: #EEE;
 }
 tr.first {
-    border-top: 1px solid rgb(210, 105, 100);
+    border-top: 1px solid #888;
+    border-bottom: 1px solid #888;
 }
 tr.last {
-    border-bottom: 1px solid rgb(210, 105, 100);
+    border-bottom: 1px solid #888;
 }
 
 td {
@@ -239,7 +234,6 @@ td {
 	margin: 0;	padding: 0;
 	font-size: 0; line-height: 0;
 	page-break-after: always;
-	background-color: red;
 }
 
 /** Classes for adding vertical space (create a div with &nbsp;) **/

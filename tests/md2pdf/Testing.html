@@ -26,38 +26,15 @@
 @font-face { font-family: Raleway; src: url('/home/aaron/workspace/python/amtools/res/fonts/Raleway-Regular.ttf'); }
 	
 html {
-    font-family: Helvetica;
-    font-size: 10px;
+	/**
+	--font_heading: "Calistoga", serif;
+	--font_ui: "ZillaSlab", serif;
+	--font_text: "ZillaSlab", sans-serif;
+	**/
+    font-family: ZillaSlab, serif;
+    font-size: 12pt;
     font-weight: normal;
     color: #000000;
-    background-color: transparent;
-    margin: 0;
-    padding: 0;
-    line-height: 150%;
-    border: 1px none;
-    display: inline;
-    width: auto;
-    height: auto;
-    white-space: normal;
-}
-
-b,
-strong {
-    font-weight: bold;
-}
-
-i,
-em {
-    font-style: italic;
-}
-
-u {
-    text-decoration: underline;
-}
-
-s,
-strike {
-    text-decoration: line-through;
 }
 
 a {
@@ -65,32 +42,18 @@ a {
     color: blue;
 }
 
-ins {
-    color: green;
-    text-decoration: underline;
-}
-del {
-    color: red;
-    text-decoration: line-through;
-}
 
-pre,
-code,
-kbd,
-samp,
-tt {
-    font-family: "Courier New";
-}
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+h1,h2,h3,h4,h5,h6 {
     font-weight:bold;
+	margin: 1em 0;
+}
+h1,h2,h3 {
     -pdf-outline: true;
     -pdf-outline-open: false;
+}
+h4,h5,h6 {
+    -pdf-outline: false;
 }
 
 h1 {
@@ -111,24 +74,6 @@ h3 {
     -pdf-outline-level: 2;
 }
 
-h4 {
-    -pdf-outline-level: 3;
-}
-
-h5 {
-    -pdf-outline-level: 4;
-}
-
-h6 {
-    -pdf-outline-level: 5;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
 p,
 pre,
 hr {
@@ -256,7 +201,23 @@ noscript {
 <body>
     <h1>PDF Test</h1>
 
-	<p>Iure quisquam ut qui. Omnis dolor placeat dolor eos et minus alias non. Vitae iste debitis mollitia fugiat provident numquam mollitia unde.
+	<p>I am a paragraph</p>
+	<p>I am a paragraph</p>
+	<p>I am a paragraph</p>
+
+	<h2>Subheading</h2>
+
+	<p>I am a paragraph</p>
+	<p>I am a paragraph</p>
+	<p>I am a paragraph</p>
+
+	<h3>SubSubHeading</h3>
+
+	<p>I am a paragraph</p>
+	<p>I am a paragraph</p>
+	<p>I am a paragraph</p>
+
+	<p>Iure quisquam ut qui. <strong>Omnis</strong> dolor <em>placeat</em> dolor eos et minus alias non. Vitae iste debitis mollitia fugiat provident numquam mollitia unde.
 	Iure quisquam ut qui. Omnis dolor placeat dolor eos et minus alias non. Vitae iste debitis mollitia fugiat provident numquam mollitia unde.</p>
 
 	<div class="vs-sm">&nbsp;</div>

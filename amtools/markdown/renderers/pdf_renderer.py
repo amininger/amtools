@@ -1,33 +1,73 @@
 import os
 import sys
+import random
+import string
 
 from amtools.filesystem import FileContext
 from amtools.markdown.elements import *
 from .html_templates import HtmlTemplates
 from .html_renderer import HtmlRenderer
 
-def pdf_doc_template(title, css_html, body_html):
-    return f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{title}</title>
-    {css_html}
-</head>
-<body>
-<div class="content">
-{body_html}
-</div>
-</body>
-</html>
-"""
+import matplotlib.pyplot as plt
+import numpy as np
+from PIL import Image
+
+def render_math_expression(math_expr: str) -> str:
+    """ Takes the given latex math expression,
+        renders it to a png file using latex
+        and saves it in /tmp, 
+        returns the filename """
+
+    # Creates a random filename in /tmp
+    file_name = ''.join(random.choice(string.ascii_lowercase) for i in range(12))
+    file_name = f"/tmp/math_{file_name}.png"
+
+    # Set the LaTeX font
+    plt.rcParams['text.usetex'] = True
+    plt.rcParams['text.latex.preamble'] = r'\usepackage{amsmath}'
+
+    # Add $ symbols to format the string as an inline math expression
+    inline_expr = f"${math_expr}$"
+
+    # Create a plot with the expression
+    fig, ax = plt.subplots()
+    ax.text(0.5, 0.5, inline_expr, size=20, ha='center')
+
+    # Remove the plot axes
+    ax.set_axis_off()
+
+    # Save the plot as a PNG with a transparent background
+    plt.savefig(fname=file_name, format="png", transparent=True, bbox_inches='tight', pad_inches=0.0, dpi=300)
+    plt.close(fig)
+
+    return file_name
+
+def crop_image(file_name:str) -> str:
+    """ Takes the given image file, crops to a tight box around the content,
+        ignoring any transparent pixels
+        Returns the saved cropped image name """
+    # Read input image, and convert to NumPy array.
+    img = np.array(Image.open(file_name))  # img is 1080 rows by 1920 cols and 4 color channels, the 4'th channel is alpha.
+
+    # Find indices of non-transparent pixels (indices where alpha channel value is above zero).
+    idx = np.where(img[:, :, 3] > 0)
+
+    # Get minimum and maximum index in both axes (top left corner and bottom right corner)
+    x0, y0, x1, y1 = idx[1].min(), idx[0].min(), idx[1].max(), idx[0].max()
+
+    # Crop rectangle and convert to Image
+    out = Image.fromarray(img[y0:y1+1, x0:x1+1, :])
+
+    # Save the result (RGBA color format).
+    out_file = file_name.split('.')[0] + "_cr.png"
+    out.save(out_file)
+
+    return out_file, (x1-x0, y1-y0)
+
 
 class PdfRenderer(HtmlRenderer):
-    def __init__(self, css_files:list = [], context: FileContext = FileContext.DEFAULT):
+    def __init__(self, context: FileContext = FileContext.DEFAULT):
         super().__init__(context)
-        self.css_files = css_files
 
     def render_table(self, table: Table) -> str:
         headings = [ self.render_text_element(h) for h in table.headings ]
@@ -41,30 +81,32 @@ class PdfRenderer(HtmlRenderer):
         if not self.is_relative(link.addr):
             return HtmlTemplates.a(link_text, link.addr)
         return link_text
+
+    def render_text_element(self, text) -> str:
+        if isinstance(text, LatexText):
+            return self.render_latex_math(text)
+        return super().render_text_element(text)
+
+    def render_latex_math(self, text: LatexText) -> str:
+        temp_img = render_math_expression(text.raw_text())
+        cropped_img, dims = crop_image(temp_img)
+        #print("Rendered Math Expression: " + text.raw_text())
+        return HtmlTemplates.inline_img(cropped_img, text.raw_text(), dims[0]/4)
+
+    def render_callout(self, callout: Callout) -> str:
+        rendered_title = self.render_text_element(callout.title)
+        rendered_text = HtmlTemplates.bold(rendered_title) + "<br>"
+        rendered_text += "\n".join(self.render_element(elem) for elem in callout.elements)
+        return HtmlTemplates.blockquote(rendered_text)
     
     def render_image(self, img: Image) -> str:
         img_url = img.filename
         if self.is_relative(img_url):
             img_url = self.context.get_local(img_url)
         if img.width is not None:
-            img_width = img.width if '%' in img.width else img.width + "px"
+            img_width = img.get_css_width()
             return HtmlTemplates.img(img_url, img.alt_text, style=f"width: {img_width};")
         else:
             return HtmlTemplates.img(img_url, img.alt_text)
 
-    def render_document(self, title:str, elements:list):
-        html = self.render_markdown_elements(elements)
-        css_html = self.render_inline_css()
-        return pdf_doc_template(title, css_html, html)
-
-    def render_inline_css(self):
-        css_html = []
-        for css_file in self.css_files:
-            if not os.path.exists(css_file):
-                print(f"CSS File {css_file} does not exist", file=sys.stderr)
-                continue
-            with open(css_file, 'r') as f:
-                css_text = f.read()
-                css_html.append(f"<style>\n{css_text}\n</style>")
-        return "\n".join(css_html)
 

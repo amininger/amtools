@@ -9,7 +9,7 @@ NL_PLACEHOLDER = '_#!_NL_!#_'
 
 
 class HtmlRenderer:
-    def __init__(self, context: FileContext):
+    def __init__(self, context: FileContext = FileContext.DEFAULT):
         self.context = context
         self.renderers = { }
         self.renderers[HorizontalRule] = self.render_horizontal_rule
@@ -180,6 +180,32 @@ class HtmlRenderer:
             link_addr = self.context.get_url(link_addr)
 
         return HtmlTemplates.a(rendered_image, link_addr)
+
+    def render_document(self, title:str, elements:list, css_files:list=[], js_files:list=[]):
+        html = self.render_markdown_elements(elements)
+        css = self.read_css_files(css_files)
+        js = self.read_js_files(js_files)
+        return HtmlTemplates.document_inlined(title, css, js, html)
+
+    def read_css_files(self, css_files):
+        css = []
+        for css_file in css_files:
+            if not os.path.exists(css_file):
+                print(f"CSS File {css_file} does not exist", file=sys.stderr)
+                continue
+            with open(css_file, 'r') as f:
+                css.append(f.read())
+        return "\n".join(css)
+
+    def read_js_files(self, js_files):
+        js = []
+        for js_file in js_files:
+            if not os.path.exists(js_file):
+                print(f"JavaScript File {js_file} does not exist", file=sys.stderr)
+                continue
+            with open(js_file, 'r') as f:
+                js.append(f.read())
+        return "\n".join(js)
 
 
 

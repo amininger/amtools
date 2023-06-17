@@ -16,7 +16,7 @@ In this project, you will implement a _binary search tree_: a special type of bi
 * Your code should never crash
 * You should follow the Java Coding Standards document
 
-<div class="med"></div>
+<div class="vs-sm"></div>
 
 <hr>
 
@@ -30,19 +30,21 @@ A binary search tree is a binary tree where:
 
 ![[BST.png|200]]
 
+This equation: <img style="display: inline" src="cropped_circle.png"> is for a circle
+
 <div class="pb"></div>
 
 ## Representation
 The tree is made up of Node objects, each node should consist of the following:
 ```
 class Node {
-	public int data;
-	public Node left = null;
-	public Node right = null;
+    public int data;
+    public Node left = null;
+    public Node right = null;
 
-	Node(int data) {
-		this.data = data;
-	}
+    Node(int data) {
+        this.data = data;
+    }
 }
 ```
 
@@ -53,11 +55,35 @@ The tree itself only has a reference to the root node.
 ## BST Search
 To search for a value, we do a recursive search with the nodes. 
 * If the current node's data is equal to the query, return true.
-* Otherwise, if the node's data is greater than the query, recursively search the left subtree
-* Otherwise, if the node's data is smaller than the query, recursively search the right subtree
+    * Otherwise, if the node's data is greater than the query, recursively search the left subtree
+    * Otherwise, if the node's data is smaller than the query, recursively search the right subtree
 * If we reach a null node, we return false. 
 
-![[BSTsearch.png|600]]
+> This is a block quote by a great man
+> This is a block quote by a great man
+> This is a block quote by a great man
+> This is a block quote by a great man
+> This is a block quote by a great man
+> This is a block quote by a great man
+
+
+_Steps:_
+1. Read Something
+2. Plan Something
+    1. Sketch
+    2. Outline
+    3. Write
+3. Build Something
+
+<div class="pb"></div>
+
+|Name|Age|Occupation|
+|----|---|----------|
+|Dr. Aaron Mininger|34|Profesor of Computer Engineering|
+|Abe Lawson|3|Being a toddler|
+|Yuri Kim|31|The best girlfriend in the world|
+
+![[BSTsearch.png|4.5in]]
 
 <div class="pb"></div>
 
@@ -69,17 +95,17 @@ We often use recursion to write BST method. These will have 2 versions of the me
 For example, consider implementing the method `numLeaves()`, which returns the number of leaf nodes in the tree (a leaf is a node with 0 children):
 ```
 public int numLeaves() {
-	return numLeaves(this.root);
+    return numLeaves(this.root);
 }
 
 private int numLeaves(Node node) {
-	if (node == null) {
-		return 0;
-	} else if (node.left == null && node.right == null) {
-		return 1;
-	} else {
-		return numLeaves(node.left) + numLeaves(node.right);
-	}
+    if (node == null) {
+        return 0;
+    } else if (node.left == null && node.right == null) {
+        return 1;
+    } else {
+        return numLeaves(node.left) + numLeaves(node.right);
+    }
 }
 ```
 
