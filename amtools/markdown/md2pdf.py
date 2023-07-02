@@ -1,5 +1,6 @@
 import sys
 import os
+from tempfile import mkstemp
 
 from io import BytesIO
 from xhtml2pdf import pisa
@@ -57,13 +58,17 @@ def make_pdf_from_markdown(filename, markdown, css_files):
 
 def save_pdf_document(filename:str, pdf_html:str):
     """ Writes the given html to a pdf file using xhtml2pdf """
-    result = BytesIO()
-    pdf = pisa.pisaDocument(BytesIO(pdf_html.encode("UTF-8")), result)
-    if pdf.err:
-        print("PDF ERROR:", pdf.err)
-        return
-    with open(filename, 'wb') as f:
-        f.write(result.getvalue())
+    # write html to a temporary file
+    # can used NamedTemporaryFile if using python 2.6+
+    fid, temp_file = mkstemp(dir='/tmp')
+    f = open(temp_file, 'w')
+    f.write(pdf_html)
+    f.close()
+
+    # now create pdf from the html
+    cmd = f"xhtml2pdf {temp_file} {filename}"
+    os.system(cmd)
+    os.remove(temp_file)
 
 if __name__ == "__main__":
     main()

@@ -44,7 +44,7 @@ html {
 	--font_text: "ZillaSlab", sans-serif;
 	**/
     font-family: ZillaSlab, serif;
-    font-size: 12pt;
+    font-size: 11pt;
     font-weight: normal;
     color: #000000;
 }
@@ -120,6 +120,11 @@ img {
 	display: block;
 	width: auto;
 	max-width: 100%; 
+}
+
+img.inline {
+    display: inline;
+    vertical-align: middle;
 }
 
 

@@ -2,6 +2,7 @@ import os
 import sys
 import random
 import string
+from tempfile import mkstemp
 
 from amtools.filesystem import FileContext
 from amtools.markdown.elements import *
@@ -27,17 +28,17 @@ def render_math_expression(math_expr: str) -> str:
     plt.rcParams['text.latex.preamble'] = r'\usepackage{amsmath}'
 
     # Add $ symbols to format the string as an inline math expression
-    inline_expr = f"${math_expr}$"
+    inline_expr = f"\\boldmath${math_expr}$"
 
     # Create a plot with the expression
-    fig, ax = plt.subplots()
-    ax.text(0.5, 0.5, inline_expr, size=20, ha='center')
+    fig, ax = plt.subplots(figsize=(20, 5))
+    ax.text(0.5, 0.5, inline_expr, size=20, ha='center', weight="bold")
 
     # Remove the plot axes
     ax.set_axis_off()
 
     # Save the plot as a PNG with a transparent background
-    plt.savefig(fname=file_name, format="png", transparent=True, bbox_inches='tight', pad_inches=0.0, dpi=300)
+    plt.savefig(fname=file_name, format="png", transparent=True, bbox_inches='tight', pad_inches=0.0, dpi=200)
     plt.close(fig)
 
     return file_name
@@ -54,6 +55,10 @@ def crop_image(file_name:str) -> str:
 
     # Get minimum and maximum index in both axes (top left corner and bottom right corner)
     x0, y0, x1, y1 = idx[1].min(), idx[0].min(), idx[1].max(), idx[0].max()
+
+    # Add a little padding on the sides (to separate from adjacent text)
+    x0 = max(0, x0-25)
+    x1 = min(len(img[0]), x1+25)
 
     # Crop rectangle and convert to Image
     out = Image.fromarray(img[y0:y1+1, x0:x1+1, :])
@@ -91,7 +96,7 @@ class PdfRenderer(HtmlRenderer):
         temp_img = render_math_expression(text.raw_text())
         cropped_img, dims = crop_image(temp_img)
         #print("Rendered Math Expression: " + text.raw_text())
-        return HtmlTemplates.inline_img(cropped_img, text.raw_text(), dims[0]/4)
+        return HtmlTemplates.img(cropped_img, text.raw_text(), cls="inline", width=int(dims[0]/4), height=(dims[1]/4))
 
     def render_callout(self, callout: Callout) -> str:
         rendered_title = self.render_text_element(callout.title)

@@ -167,10 +167,6 @@ f"""<div class="callout {cls}">
         return f"<img{info(**kwargs)} src=\"{filename}\" alt=\"{alt_text}\">"
 
     @staticmethod
-    def inline_img(filename, alt_text, width, **kwargs):
-        return f"<img class=\"inline\" width=\"{width}\" style=\"display: inline\" {info(**kwargs)} src=\"{filename}\" alt=\"{alt_text}\">"
-
-    @staticmethod
     def p(text, **kwargs):
         return f"<p{info(**kwargs)}>\n{indent(text, 2)}\n</p>"
 
