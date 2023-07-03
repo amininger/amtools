@@ -1,0 +1,290 @@
+/* 
+@theme ucbc
+@size 4:3 1024px 768px
+*/
+
+@import 'gaia'
+
+@font-face { font-family: Metropolis; font-weight: 200; src: url('/home/aaron/workspace/python/amtools/res/fonts/Metropolis-Thin.otf'); }
+@font-face { font-family: Metropolis; font-weight: 400; src: url('/home/aaron/workspace/python/amtools/res/fonts/Metropolis-Regular.otf'); }
+@font-face { font-family: Metropolis; font-weight: 700; src: url('/home/aaron/workspace/python/amtools/res/fonts/Metropolis-Bold.otf'); }
+
+@font-face { font-family: ZillaSlab; font-weight: 200; src: url('/home/aaron/workspace/python/amtools/res/fonts/ZillaSlab-Light.ttf'); }
+@font-face { font-family: ZillaSlab; font-weight: 400; src: url('/home/aaron/workspace/python/amtools/res/fonts/ZillaSlab-Regular.ttf'); }
+@font-face { font-family: ZillaSlab; font-weight: 700; src: url('/home/aaron/workspace/python/amtools/res/fonts/ZillaSlab-Bold.ttf'); }
+
+@font-face { font-family: Alfa; src: url('/home/aaron/workspace/python/amtools/res/fonts/AlfaSlabOne-Regular.ttf'); }
+@font-face { font-family: Bungee; src: url('/home/aaron/workspace/python/amtools/res/fonts/Bungee-Regular.ttf'); }
+@font-face { font-family: Calistoga; src: url('/home/aaron/workspace/python/amtools/res/fonts/Calistoga-Regular.ttf'); }
+@font-face { font-family: Raleway; src: url('/home/aaron/workspace/python/amtools/res/fonts/Raleway-Regular.ttf'); }
+
+@font-face { font-family: Jost; font-weight: 400; src: url('/home/aaron/workspace/python/amtools/res/fonts/Jost-Regular.ttf'); }
+@font-face { font-family: Jost; font-weight: 700; src: url('/home/aaron/workspace/python/amtools/res/fonts/Jost-Bold.ttf'); }
+
+
+:root {
+	--WHITE: rgb(255, 255, 255);
+	--DARK_GRAY: rgb(44, 44, 44);
+	--RUST: rgb(203, 77, 73);
+	--BLUE: #56A3A6;
+	--GREEN: #6BA368;
+	--GOLD: #F6AE2D;
+
+	--font-size: 36px;
+	--h2-size: 2em;
+	--h3-size: 1.5em;
+	--footer-size: 0.6em;
+
+	--font_text: Jost, Geneva, sans-serif;
+	--font_heading: ZillaSlab, Times, serif;
+
+	box-sizing: border-box;
+}
+
+/** Normal Theme **/
+:root {
+	--col_background: var(--WHITE);
+	--col_text: var(--DARK_GRAY);
+	--col_accent: var(--RUST);
+	--col_header: var(--RUST);
+}
+
+/** Inverted Theme **/
+:root.title, :root.transition {
+	--col_background: var(--RUST);
+	--col_text: var(--WHITE);
+	--col_accent: var(--DARK_GRAY);
+	--col_header: var(--RUST);
+}
+
+:root.plain {
+	--col_background: var(--WHITE);
+	--col_text: var(--DARK_GRAY);
+	--col_accent: var(--RUST);
+	--col_header: var(--WHITE);
+}
+
+
+section {
+	margin: 0;
+	padding: 0 40px;
+
+	background-color: var(--col_background);
+	color: var(--col_text);
+	font-size: var(--font-size);
+	font-family: var(--font_text);
+}
+
+section.title, section.transition {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+
+section.title h1 {
+	font-size: 3em;
+	padding: 0;
+	margin: 0.2em 0;
+}
+section.title h2 {
+	font-size: 2em;
+	padding: 0;
+	margin: 0.2em 0;
+}
+section.title p {
+	text-align: center;
+}
+
+h1 {
+	margin: 0 -40px 0.4em -40px;
+	padding: 0.3em 40px;
+
+	background-color: var(--col_header);
+	color: var(--WHITE);
+	font-weight: 200;
+	font-size: 1.8em;
+}
+:root.plain h1 {
+	color: var(--col_text);
+	background-color: inherit;
+}
+
+section > * {
+	margin-left: 40px;
+	margin-right: 40px;
+}
+
+h1,h2,h3 {
+	font-family: var(--font_heading);
+}
+h2 {
+	font-size: 1.4em;
+	margin-top: 0.5em;
+	margin-bottom: 0.3em;
+}
+h3 {
+	font-size: 1.2em;
+	margin-top: 0.4em;
+	margin-bottom: 0.2em;
+}
+h2 strong, h3 strong {
+	color: var(--GREEN);
+}
+
+p {
+	margin-top: 0.4em;
+	margin-bottom: 0.4em;
+	line-height: 1.6;
+}
+
+code {
+	font-size: 0.8em;
+	background-color: #E0E0FF;
+	color: var(--col_text);
+}
+
+pre {
+	padding: 0.3em 0.5em;
+	background-color: #EEE;
+	font-size: 0.75em;
+	border: 2px solid var(--col_accent);
+}
+
+section pre {
+	margin: 0.6em 0;
+	border-radius: 5px;
+	padding: 0.2em 0.8em;
+	font-size: 1.0em;
+
+	background:	#F0F0F0;
+}
+
+section pre code {
+	background-color: inherit;
+	color: #333;
+}
+
+section pre span.hljs-keyword {
+	color: #A84030;
+}
+section pre span.hljs-title {
+	color: #001878;
+}
+section pre span.hljs-comment {
+	color: #606060;
+}
+section pre span.hljs-string {
+	color: #389A18;
+}
+section pre span.hljs-class .hljs-title {
+	text-decoration: none;
+}
+section pre span.hljs-params, section pre span.hljs-variable {
+	color: #3070C0;
+}
+section pre span.hljs-type {
+	color: #389A18;
+}
+
+
+ul, ol {
+	font-size: 0.9em;
+	margin-left: 0.5em;
+}
+
+li {
+	margin: 0.25em 0;
+}
+
+table {
+	font-size: 0.8em;
+}
+thead th {
+	font-family: var(--font_heading);
+}
+
+
+
+footer {
+	margin: 0;
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	width: 100%;
+	height: 30px;
+
+	background-color: var(--DARK_GRAY);
+	background-image: url('/home/aaron/workspace/python/amtools/res/ucbc24.png');
+	background-position: left 8px top 3px;
+	background-repeat: no-repeat;
+
+	padding: 0 0 6px 40px;
+
+	font-size: var(--footer-size);
+	color: var(--WHITE);
+	line-height: 1.3em;
+}
+:root.title footer, :root.transition footer, :root.plain footer {
+	display: none;
+}
+
+/***** THEME: TITLE ******/
+:root.title {
+	--col_background: var(--RUST);
+	--col_text: var(--WHITE);
+	--col_accent: var(--DARK_GRAY);
+	--col_header: var(--RUST);
+}
+section.title {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+section.title h1 {
+	font-size: 2.5em;
+	padding: 0;
+	margin: 0.2em 0;
+}
+section.title h2 {
+	font-size: 2em;
+	padding: 0;
+	margin: 0.2em 0;
+}
+section.title :is(h1, h2, p) {
+	text-align: center;
+}
+section.title footer {
+	display: none;
+}
+
+/***** THEME: Transition ******/
+:root.transition {
+	--col_background: var(--RUST);
+	--col_text: var(--WHITE);
+	--col_accent: var(--DARK_GRAY);
+	--col_header: var(--RUST);
+}
+section.transition {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+section.transition h1 {
+	font-size: 2em;
+	padding: 0;
+	margin: 0.2em 0;
+}
+section.transition h2 {
+	font-size: 1.6em;
+	padding: 0;
+	margin: 0.2em 0;
+}
+section.transition p {
+	text-align: center;
+}
+section.transition footer {
+	display: none;
+}
