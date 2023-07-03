@@ -7,8 +7,8 @@ from .html_renderer import HtmlRenderer
 from .html_templates import HtmlTemplates
 
 class MenuRenderer(HtmlRenderer):
-    def __init__(self, context: FileContext):
-        super().__init__(context)
+    def __init__(self, url_mapper):
+        super().__init__(url_mapper)
 
     def unroll_nested_lists(self, list_block: ListBlock, depth:int=0):
         list_items = []
@@ -31,6 +31,6 @@ class MenuRenderer(HtmlRenderer):
         return '\n'.join(btns)
     
     def render_menu_button(self, btn_text: str, btn_link: str, cls: str):
-        full_link = self.context.get_url(btn_link)
+        full_link = self.url_mapper(btn_link)
         return f"""<a href="{full_link}" class="nav-btn {cls}">{btn_text}</a>"""
 

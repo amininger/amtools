@@ -1,20 +1,19 @@
 import os
 
 from .fsutil import fsutil
-from .file_context import FileContext
 from .file import File
 
 class TextDoc(File):
-    def __init__(self, path: str, context: FileContext):
-        super().__init__(path, context)
+    def __init__(self, path: str):
+        super().__init__(path)
 
         self.metadata['title'] = fsutil.filename2title(self.filename)
-        metadata = fsutil.read_file_metadata(self.get_local_path())
+        metadata = fsutil.read_file_metadata(self.path)
         for k, v in metadata.items():
             self.metadata[k] = v
 
     def get_text(self, skip_metadata=False) -> str:
-        with open(self.get_local_path(), 'r') as f:
+        with open(self.path, 'r') as f:
             text = f.read()
         if skip_metadata:
             return fsutil.remove_metadata(text)

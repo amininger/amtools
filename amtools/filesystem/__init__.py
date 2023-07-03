@@ -1,6 +1,5 @@
 
 from .fsutil import fsutil
-from .file_context import FileContext
 from .path_object import PathObject
 from .directory import Directory
 from .file import File

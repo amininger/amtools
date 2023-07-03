@@ -9,8 +9,8 @@ NL_PLACEHOLDER = '_#!_NL_!#_'
 
 
 class HtmlRenderer:
-    def __init__(self, context: FileContext = FileContext.DEFAULT):
-        self.context = context
+    def __init__(self, url_mapper):
+        self.url_mapper = url_mapper
         self.renderers = { }
         self.renderers[HorizontalRule] = self.render_horizontal_rule
         self.renderers[Heading]        = self.render_heading
