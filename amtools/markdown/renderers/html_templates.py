@@ -11,7 +11,10 @@ def info(**kwargs):
 
 class HtmlTemplates:
 
+    @staticmethod
     def document(title, body, css_files=[], js_files=[]):
+        """ Renders the given html into a proper html document, 
+            with imports to the given css/js files """
         styles = '\n'.join(f"<link rel=\"stylesheet\" href=\"{ss}\">" for ss in css_files)
         scripts = '\n'.join(f"<script src=\"{js}\"></script>" for js in js_files)
         return \
@@ -27,6 +30,32 @@ f"""<!DOCTYPE html>
 {indent(body, 2)}
 </body>
 </html>"""
+
+    @staticmethod
+    def document_inlined(title, css, js, body_html):
+        """ Renders the given html/css/js into a proper html document """
+        return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{title}</title>
+    <style>
+{indent(css, 2)}
+    </style>
+    <script>
+{indent(js, 2)}
+    </script>
+</head>
+<body>
+    <div class="content">
+{body_html}
+    </div>
+</body>
+</html>
+"""
+
 
     @staticmethod
     def div(body, **kwargs):
@@ -73,7 +102,7 @@ f"""<!DOCTYPE html>
         head = HtmlTemplates.tr(headings, widths, is_heading=True, is_even=False)
         body = []
         for i, row in enumerate(rows):
-            body.append(HtmlTemplates.tr(row, widths, is_heading=False, is_even=i%2==0))
+            body.append(HtmlTemplates.tr(row, widths, is_heading=False, is_even=i%2==0, is_last=(i+1 == len(rows))))
         body = "\n".join(body)
         return \
 f"""<table{info(**kwargs)}>
@@ -87,17 +116,20 @@ f"""<table{info(**kwargs)}>
 """
 
     @staticmethod
-    def tr(row, widths, is_heading, is_even):
+    def tr(row, widths, is_heading, is_even, is_last=False):
         make_cell = HtmlTemplates.th if is_heading else HtmlTemplates.td
+        last = " last" if is_last else ""
 
         cols = []
         for i in range(len(row)):
             cols.append(make_cell(row[i], style=widths[i]))
         col_text = '\n'.join(cols)
-        if is_even:
-            return f"<tr class=\"even\">\n{indent(col_text, 2)}\n</tr>"
+        if is_heading:
+            return f"<tr class=\"head first\">\n{indent(col_text, 2)}\n</tr>"
+        elif is_even:
+            return f"<tr class=\"even{last}\">\n{indent(col_text, 2)}\n</tr>"
         else:
-            return f"<tr class=\"odd\">\n{indent(col_text, 2)}\n</tr>"
+            return f"<tr class=\"odd{last}\">\n{indent(col_text, 2)}\n</tr>"
 
 
     @staticmethod
@@ -133,6 +165,10 @@ f"""<div class="callout {cls}">
     @staticmethod
     def img(filename, alt_text, **kwargs):
         return f"<img{info(**kwargs)} src=\"{filename}\" alt=\"{alt_text}\">"
+
+    @staticmethod
+    def inline_img(filename, alt_text, width, **kwargs):
+        return f"<img class=\"inline\" width=\"{width}\" style=\"display: inline\" {info(**kwargs)} src=\"{filename}\" alt=\"{alt_text}\">"
 
     @staticmethod
     def p(text, **kwargs):

@@ -1,0 +1,234 @@
+<html>
+<head>
+<style>
+	/*** A4: 595 × 842 points ***/
+    @page { 
+        margin: 2cm;
+		@frame content_frame {
+			left: 50pt;
+			width: 495pt;
+			top: 50pt;
+			height: 742pt;
+			-pdf-frame-border: 1;
+		}
+    }
+
+@font-face { font-family: Metropolis; font-weight: 400; src: url('/home/aaron/workspace/python/amtools/res/fonts/Metropolis-Regular.otf'); }
+@font-face { font-family: Metropolis; font-weight: 700; src: url('/home/aaron/workspace/python/amtools/res/fonts/Metropolis-Bold.otf'); }
+
+@font-face { font-family: ZillaSlab; font-weight: 200; src: url('/home/aaron/workspace/python/amtools/res/fonts/ZillaSlab-Light.ttf'); }
+@font-face { font-family: ZillaSlab; font-weight: 400; src: url('/home/aaron/workspace/python/amtools/res/fonts/ZillaSlab-Regular.ttf'); }
+@font-face { font-family: ZillaSlab; font-weight: 700; src: url('/home/aaron/workspace/python/amtools/res/fonts/ZillaSlab-Bold.ttf'); }
+
+@font-face { font-family: Alfa; src: url('/home/aaron/workspace/python/amtools/res/fonts/AlfaSlabOne-Regular.ttf'); }
+@font-face { font-family: Bungee; src: url('/home/aaron/workspace/python/amtools/res/fonts/Bungee-Regular.ttf'); }
+@font-face { font-family: Calistoga; src: url('/home/aaron/workspace/python/amtools/res/fonts/Calistoga-Regular.ttf'); }
+@font-face { font-family: Raleway; src: url('/home/aaron/workspace/python/amtools/res/fonts/Raleway-Regular.ttf'); }
+	
+html {
+	/**
+	--font_heading: "Calistoga", serif;
+	--font_ui: "ZillaSlab", serif;
+	--font_text: "ZillaSlab", sans-serif;
+	**/
+    font-family: ZillaSlab, serif;
+    font-size: 12pt;
+    font-weight: normal;
+    color: #000000;
+}
+
+a {
+    text-decoration: underline;
+    color: blue;
+}
+
+
+
+h1,h2,h3,h4,h5,h6 {
+    font-weight:bold;
+	margin: 1em 0;
+}
+h1,h2,h3 {
+    -pdf-outline: true;
+    -pdf-outline-open: false;
+}
+h4,h5,h6 {
+    -pdf-outline: false;
+}
+
+h1 {
+    /*18px via YUI Fonts CSS foundation*/
+    font-size:138.5%;
+    -pdf-outline-level: 0;
+}
+
+h2 {
+    /*16px via YUI Fonts CSS foundation*/
+    font-size:123.1%;
+    -pdf-outline-level: 1;
+}
+
+h3 {
+    /*14px via YUI Fonts CSS foundation*/
+    font-size:108%;
+    -pdf-outline-level: 2;
+}
+
+p,
+pre,
+hr {
+    margin:1em 0;
+}
+
+address,
+blockquote,
+body,
+center,
+dl,
+dir,
+div,
+fieldset,
+form,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+hr,
+isindex,
+menu,
+noframes,
+noscript,
+ol,
+p,
+pre,
+table,
+th,
+tr,
+td,
+ul,
+li,
+dd,
+dt,
+pdftoc {
+    display: block;
+}
+
+table {
+}
+
+tr,
+th,
+td {
+
+    vertical-align: middle;
+    width: auto;
+}
+
+th {
+    text-align: center;
+    font-weight: bold;
+}
+
+center {
+    text-align: center;
+}
+
+big {
+    font-size: 125%;
+}
+
+small {
+    font-size: 75%;
+}
+
+
+ul {
+    margin-left: 1.5em;
+    list-style-type: disc;
+}
+
+ul ul {
+    list-style-type: circle;
+}
+
+ul ul ul {
+    list-style-type: square;
+}
+
+ol {
+    list-style-type: decimal;
+    margin-left: 1.5em;
+}
+
+pre {
+    white-space: pre;
+}
+
+blockquote {
+    margin-left: 1.5em;
+    margin-right: 1.5em;
+}
+
+noscript {
+    display: none;
+}
+
+/** Class for defining a page-break spáce **/
+.pb {
+	margin: 0;	padding: 0;
+	font-size: 0; line-height: 0;
+	page-break-after: always;
+	background-color: red;
+}
+
+/** Classes for adding vertical space **/
+.vs-xs, .vs-sm, .vs-md, .vs-lg, .vs-xl, .vs-xxl {
+	margin: 0; 
+}
+.vs-xs {	padding-top: 0.00in;	}
+.vs-sm {	padding-top: 0.25in;	}
+.vs-md {	padding-top: 0.60in;	}
+.vs-lg {	padding-top: 1.20in;	}
+.vs-xl {	padding-top: 2.00in;	}
+.vs-xxl {	padding-top: 3.20in;	}
+
+
+</style>
+</head>
+
+<body>
+    <h1>PDF Test</h1>
+
+	<p>I am a paragraph</p>
+	<p>I am a paragraph</p>
+	<p>I am a paragraph</p>
+
+	<h2>Subheading</h2>
+
+	<p>I am a paragraph</p>
+	<p>I am a paragraph</p>
+	<p>I am a paragraph</p>
+
+	<h3>SubSubHeading</h3>
+
+	<p>I am a paragraph</p>
+	<p>I am a paragraph</p>
+	<p>I am a paragraph</p>
+
+	<p>Iure quisquam ut qui. <strong>Omnis</strong> dolor <em>placeat</em> dolor eos et minus alias non. Vitae iste debitis mollitia fugiat provident numquam mollitia unde.
+	Iure quisquam ut qui. Omnis dolor placeat dolor eos et minus alias non. Vitae iste debitis mollitia fugiat provident numquam mollitia unde.</p>
+
+	<div class="vs-sm">&nbsp;</div>
+
+	<p>Iure quisquam ut qui. Omnis dolor placeat dolor eos et minus alias non. Vitae iste debitis mollitia fugiat provident numquam mollitia unde.
+	Iure quisquam ut qui. Omnis dolor placeat dolor eos et minus alias non. Vitae iste debitis mollitia fugiat provident numquam mollitia unde.</p>
+
+	<div class="pb">&nbsp;</div>
+
+	<p>	Quo quibusdam cum et voluptas eum earum quis earum. Ea exercitationem non quaerat fugiat odit recusandae minus. Itaque nostrum id aut. Magnam asperiores dicta fuga eveniet inventore repudiandae. Cumque adipisci in reiciendis quibusdam qui.</p>
+
+
+</body>
+</html>

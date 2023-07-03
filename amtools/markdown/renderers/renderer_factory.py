@@ -7,13 +7,12 @@ from .menu_renderer import MenuRenderer
 def create_renderer(name: str, context: FileContext) -> HtmlRenderer:
     """ Returns an instance of the appropriate HtmlRenderer from its name
         menu - MenuRenderer
+        pdf - PdfRenderer
         default - HtmlRenderer
     """
-    if name is not None:
-        if name == "menu":
-            return MenuRenderer(context)
-        if name == "pdf":
-            return PdfRenderer(context)
-
-
-    return HtmlRenderer(context)
+    if name == "menu":
+        return MenuRenderer(context)
+    elif name == "pdf":
+        return PdfRenderer(context)
+    else:
+        return HtmlRenderer(context)

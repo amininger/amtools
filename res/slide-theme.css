@@ -21,7 +21,6 @@
 @font-face { font-family: Jost; font-weight: 400; src: url('/home/aaron/workspace/python/amtools/res/fonts/Jost-Regular.ttf'); }
 @font-face { font-family: Jost; font-weight: 700; src: url('/home/aaron/workspace/python/amtools/res/fonts/Jost-Bold.ttf'); }
 
-
 :root {
 	--WHITE: rgb(255, 255, 255);
 	--DARK_GRAY: rgb(44, 44, 44);
