@@ -144,5 +144,14 @@ Here is a background image
 </p></div>
 
 ---
+<!-- _class: definition -->
+# Directed Graph
+
+A graph with all directed edges
+Here is an example
+$x^2 + y^2 = z^2$
+
+---
+
 
 

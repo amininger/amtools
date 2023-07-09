@@ -287,3 +287,37 @@ section.transition p {
 section.transition footer {
 	display: none;
 }
+
+section.definition {
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+}
+section.definition h1, section.definition h2, section.definition h3 {
+    width: 80%;
+    margin: 0;
+    padding: 20px 40px;
+    background-color: rgb(73, 77, 203);
+	color: #fff;
+}
+section.definition h1::before, section.definition h2::before, section.definition h3::before   {
+    content: '🛈';
+    margin-right: 10px;
+    padding: 5px;
+    font-weight: normal;
+    font-size: 0.8em;
+	color: #fff;
+}
+section.definition p, section.definition ul, section.definition ol {
+    width: 80%;
+    margin: 0;
+    padding: 40px;
+    background-color: rgb(200, 210, 240);
+    font-size: 1.0em;
+}
+section.definition.small p {
+	font-size: 0.9em;
+}

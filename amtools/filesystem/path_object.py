@@ -3,8 +3,7 @@ import os
 from .fsutil import fsutil
 
 class PathObject:
-    """ The abstract base class for a file or directory
-        given by a path relative to a FileContext """
+    """ The abstract base class for a file or directory """
     def __init__(self, path: str):
         """ initializes the PathObject
             raises FileNotFoundException if the path does not exist """

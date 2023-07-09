@@ -4,7 +4,6 @@ import random
 import string
 from tempfile import mkstemp
 
-from amtools.filesystem import FileContext
 from amtools.markdown.elements import *
 from .html_templates import HtmlTemplates
 from .html_renderer import HtmlRenderer
@@ -69,10 +68,9 @@ def crop_image(file_name:str) -> str:
 
     return out_file, (x1-x0, y1-y0)
 
-
 class PdfRenderer(HtmlRenderer):
-    def __init__(self, context: FileContext = FileContext.DEFAULT):
-        super().__init__(context)
+    def __init__(self, url_mapper = None):
+        super().__init__(url_mapper)
 
     def render_table(self, table: Table) -> str:
         headings = [ self.render_text_element(h) for h in table.headings ]
@@ -107,7 +105,7 @@ class PdfRenderer(HtmlRenderer):
     def render_image(self, img: Image) -> str:
         img_url = img.filename
         if self.is_relative(img_url):
-            img_url = self.context.get_local(img_url)
+            img_url = self.url_mapper(img_url)
         if img.width is not None:
             img_width = img.get_css_width()
             return HtmlTemplates.img(img_url, img.alt_text, style=f"width: {img_width};")

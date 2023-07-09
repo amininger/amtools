@@ -1,16 +1,16 @@
 import re 
 import os
 
-from amtools.filesystem import FileContext
 from amtools.markdown.elements import *
 from .html_templates import HtmlTemplates
 
 NL_PLACEHOLDER = '_#!_NL_!#_'
 
+DEFAULT_URL_MAPPER = lambda s: s
 
 class HtmlRenderer:
-    def __init__(self, url_mapper):
-        self.url_mapper = url_mapper
+    def __init__(self, url_mapper = None):
+        self.url_mapper = DEFAULT_URL_MAPPER if url_mapper is None else url_mapper
         self.renderers = { }
         self.renderers[HorizontalRule] = self.render_horizontal_rule
         self.renderers[Heading]        = self.render_heading
@@ -143,7 +143,7 @@ class HtmlRenderer:
         return HtmlTemplates.a("#" + tag.title, "", cls="tag red-tag")
 
     def is_relative(self, addr):
-        for pattern in [ 'http', 'www', '/', 'mailto', '#' ]:
+        for pattern in [ 'http', 'www', 'mailto', '#' ]:
             if addr.startswith(pattern):
                 return False
         return True
@@ -154,7 +154,7 @@ class HtmlRenderer:
             link_text = wrap_text(link_text)
         link_addr = link.addr
         if self.is_relative(link_addr):
-            link_addr = self.context.get_url(link_addr)
+            link_addr = self.url_mapper(link_addr)
         args = { }
         if link.title is not None:
             args['title'] = link.title
@@ -163,7 +163,7 @@ class HtmlRenderer:
     def render_image(self, img: Image) -> str:
         img_url = img.filename
         if self.is_relative(img_url):
-            img_url = self.context.get_media_url(img_url)
+            img_url = self.url_mapper(img_url)
         args = { }
         if img.width is not None:
             img_width = img.width if '%' in img.width else img.width + "px"
@@ -177,7 +177,7 @@ class HtmlRenderer:
 
         link_addr = img.addr
         if self.is_relative(link_addr):
-            link_addr = self.context.get_url(link_addr)
+            link_addr = self.url_mapper(link_addr)
 
         return HtmlTemplates.a(rendered_image, link_addr)
 

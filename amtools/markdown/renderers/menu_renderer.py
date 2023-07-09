@@ -1,13 +1,12 @@
 import os
 
-from amtools.filesystem import FileContext
 from amtools.markdown.elements import *
 
 from .html_renderer import HtmlRenderer
 from .html_templates import HtmlTemplates
 
 class MenuRenderer(HtmlRenderer):
-    def __init__(self, url_mapper):
+    def __init__(self, url_mapper = None):
         super().__init__(url_mapper)
 
     def unroll_nested_lists(self, list_block: ListBlock, depth:int=0):
