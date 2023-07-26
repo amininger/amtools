@@ -63,6 +63,10 @@
 	--col_header: var(--WHITE);
 }
 
+:root.small {
+	font-size: 30px;
+}
+
 
 section {
 	margin: 0;

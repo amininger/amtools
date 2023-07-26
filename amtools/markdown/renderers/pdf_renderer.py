@@ -25,6 +25,7 @@ def render_math_expression(math_expr: str) -> str:
     # Set the LaTeX font
     plt.rcParams['text.usetex'] = True
     plt.rcParams['text.latex.preamble'] = r'\usepackage{amsmath}'
+    plt.rcParams['text.latex.preamble'] = r'\usepackage{array}'
 
     # Add $ symbols to format the string as an inline math expression
     inline_expr = f"\\boldmath${math_expr}$"
@@ -58,6 +59,13 @@ def crop_image(file_name:str) -> str:
     # Add a little padding on the sides (to separate from adjacent text)
     x0 = max(0, x0-25)
     x1 = min(len(img[0]), x1+25)
+     
+    # Add vertical padding if too small
+    height = y1 - y0
+    if height < 70:
+        pad_y = (90-height)//2
+        y0 = max(0, y0 - (pad_y + 10))
+        y1 = min(len(img[1]), y1 + (pad_y - 10))
 
     # Crop rectangle and convert to Image
     out = Image.fromarray(img[y0:y1+1, x0:x1+1, :])

@@ -51,31 +51,35 @@ html {
 
 h1,h2,h3,h4,h5,h6 {
     display: block;
-    font-family: Calistoga, serif;
 }
+h1,h2 {
+	font-family: ZillaSlab_Bold, serif;
+}
+
 h1,h2,h3 {
-	margin: 1em 0;
     -pdf-outline: true;
     -pdf-outline-open: false;
 }
 h4,h5,h6 {
-	margin: 0.5em 0;
     -pdf-outline: false;
 }
 
 h1 {
+	margin: 0.8em 0;
     /*18px via YUI Fonts CSS foundation*/
     font-size:138.5%;
     -pdf-outline-level: 0;
 }
 
 h2 {
+	margin: 0.8em 0 0.4em 0;
     /*16px via YUI Fonts CSS foundation*/
     font-size:123.1%;
     -pdf-outline-level: 1;
 }
 
 h3 {
+	margin: 0.5em 0 0.3em 0;
     /*14px via YUI Fonts CSS foundation*/
     font-size:108%;
     -pdf-outline-level: 2;
@@ -84,6 +88,10 @@ h3 {
 h4 {
     font-size:90%;
 }
+h4,h5,h6 {
+	margin: 0.3em 0;
+}
+
 
 /*** Paragraphs and Text ***/
 
@@ -244,7 +252,6 @@ td {
 	margin: 0;	padding: 0;
 	font-size: 0; line-height: 0;
 	page-break-after: always;
-	background-color: red;
 }
 
 /** Classes for adding vertical space (create a div with &nbsp;) **/

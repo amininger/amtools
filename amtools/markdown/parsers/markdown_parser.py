@@ -31,6 +31,7 @@ r_IMAGE         = re.compile("!" + r_LINK.pattern)
 r_IMAGE2        = re.compile("!" + r_INTERNAL_LINK.pattern)
 r_IMAGE3        = re.compile("!\[\[([^][]*)\]\]")
 r_LINKED_IMAGE  = re.compile("\[" + r_IMAGE.pattern + '\]\(([^)(]+)\)')
+r_HTML_COMMENT  = re.compile(r"<!--(.*)-->")
 
 r_TABLE         = re.compile(r"^\|([^|]+\|)+ *$")
 r_TASK_LIST     = re.compile(r"^- \[[ ?xX]\] ")
@@ -123,6 +124,7 @@ class MarkdownParser:
         self.line_matchers.append(LineElementMatcher(r_IMAGE,   self.parse_image))
         self.line_matchers.append(LineElementMatcher(r_IMAGE2,  self.parse_image))
         self.line_matchers.append(LineElementMatcher(r_IMAGE3,  self.parse_embedded_image))
+        self.line_matchers.append(LineElementMatcher(r_HTML_COMMENT, self.parse_html_comment))
 
         self.text_matchers = [ ]
         #self.text_matchers.append(TextElementMatcher(r_INLINE_IMAGE, Image, UnparsedArg))
@@ -230,6 +232,9 @@ class MarkdownParser:
             title = title[1:-1] # Remove quotes
         return LinkedImage(alt_text, filename, title, addr)
 
+    def parse_html_comment(self, line: str, re_match: re.Match) -> RawText:
+        inner_text, = re_match.groups()
+        return HtmlComment(inner_text)
 
     ##############################################################
     # Block Elements - take up multiple lines

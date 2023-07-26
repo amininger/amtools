@@ -27,6 +27,7 @@ class HtmlRenderer:
         self.renderers[Table]          = self.render_table
         self.renderers[Paragraph]      = self.render_paragraph
         self.renderers[InlineText]     = self.render_text_element
+        self.renderers[HtmlComment]    = self.render_html_comment
 
     def render_markdown_elements(self, elements: list) -> str:
         """ Renders a list of markdown elements into a string of html """
@@ -138,6 +139,9 @@ class HtmlRenderer:
             return rendered_children
 
         return str(text)
+
+    def render_html_comment(self, comment: HtmlComment) -> str:
+        return str(comment)
 
     def render_tag(self, tag: Tag) -> str:
         return HtmlTemplates.a("#" + tag.title, "", cls="tag red-tag")
