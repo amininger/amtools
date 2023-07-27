@@ -13,6 +13,9 @@ class ListItem(MarkdownElement):
         self.list_type = list_type
         self.text = text
 
+    def children(self):
+        return [ self.text ]
+
     def __str__(self) -> str:
         symbol = ("1." if self.list_type == ListType.ORDERED else "-")
         return f'{symbol} {self.text}'
@@ -23,6 +26,9 @@ class ListBlock(MarkdownElement):
     def __init__(self, list_type: ListType, elements: List[MarkdownElement]):
         self.list_type = list_type
         self.elements = elements
+
+    def children(self):
+        return self.elements
 
     def __str__(self) -> str:
         return '\n'.join(map(str, self.elements))

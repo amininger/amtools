@@ -9,6 +9,9 @@ class Paragraph(MarkdownElement):
         self.add_text(text)
         self.text_element = None
 
+    def children(self):
+        return [ self.text_element ]
+
     def add_text(self, new_text: str) -> None:
         new_text = new_text.strip()
         newline = False

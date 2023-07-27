@@ -10,5 +10,8 @@ class Heading(MarkdownElement):
         self.title  = title
         self.hid = hid
 
+    def children(self):
+        return [ self.title ]
+
     def __str__(self) -> str:
         return f"[H{self.weight}: {str(self.title)}]"

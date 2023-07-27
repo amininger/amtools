@@ -19,6 +19,9 @@ class InlineText(MarkdownElement):
             else:
                 self.elements.append(el)
 
+    def children(self):
+        return self.elements
+
     def raw_text(self) -> str:
         child_text = (el.raw_text().strip() for el in self.elements)
         return " ".join(t for t in child_text if len(t) > 0)
@@ -62,9 +65,13 @@ class CodeText(InlineText):
     def __str__(self) -> str:
         return "[C:" + " ".join(map(str, self.elements)) + "]"
 
-class LatexText(InlineText):
+class LatexMath(InlineText):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.rendered_image = None
+
     def __str__(self) -> str:
-        return "[$:" + " ".join(map(str, self.elements)) + "]"
+        return f"${self.raw_text()}$"
 
 class StrikethroughText(InlineText):
     def __str__(self) -> str:

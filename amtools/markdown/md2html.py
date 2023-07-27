@@ -1,6 +1,7 @@
 import sys
 import os
 
+from amtools.filesystem import fsutil
 from amtools.markdown.parsers import MarkdownParser
 from amtools.markdown.renderers import HtmlRenderer, PdfRenderer
 

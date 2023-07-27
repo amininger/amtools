@@ -3,7 +3,7 @@ from typing import List
 from .markdown_element import MarkdownElement
 from .inline_text import InlineText
 
-class Table:
+class Table(MarkdownElement):
     def __init__(self, headings: List[InlineText]):
         self.headings = headings
         self.num_cols = len(self.headings)
@@ -13,6 +13,11 @@ class Table:
     def calc_width(self, text):
         return 5 + max(len(s) for s in text.split("<br>"))
 
+    def children(self):
+        children = list(self.headings)
+        for row in self.rows:
+            children += row
+        return children
 
     def add_row(self, row: List[InlineText]) -> None:
         new_row = []

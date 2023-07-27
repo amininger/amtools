@@ -16,6 +16,9 @@ class Card(MarkdownElement):
         self.title = title
         self.elements = elements
 
+    def children(self):
+        return self.elements
+
     def __str__(self):
         return f"Card[{self.title}]\n" + "\n".join(map(str, self.elements)) + "--------------\n"
 
@@ -24,6 +27,9 @@ class LinkList(MarkdownElement):
 
     def __init__(self, elements):
         self.elements = elements
+
+    def children(self):
+        return self.elements
     
     def __str__(self) -> str:
         return "| " + "\n| ".join(str(elem) for elem in self.elements)

@@ -2,7 +2,8 @@ import os
 import sys
 import random
 import string
-from tempfile import mkstemp
+import subprocess
+from tempfile import NamedTemporaryFile
 
 from amtools.markdown.elements import *
 from .html_templates import HtmlTemplates
@@ -12,37 +13,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 
-def render_math_expression(math_expr: str) -> str:
-    """ Takes the given latex math expression,
-        renders it to a png file using latex
-        and saves it in /tmp, 
-        returns the filename """
-
-    # Creates a random filename in /tmp
-    file_name = ''.join(random.choice(string.ascii_lowercase) for i in range(12))
-    file_name = f"/tmp/math_{file_name}.png"
-
-    # Set the LaTeX font
-    plt.rcParams['text.usetex'] = True
-    plt.rcParams['text.latex.preamble'] = r'\usepackage{amsmath}'
-    plt.rcParams['text.latex.preamble'] = r'\usepackage{array}'
-
-    # Add $ symbols to format the string as an inline math expression
-    inline_expr = f"\\boldmath${math_expr}$"
-
-    # Create a plot with the expression
-    fig, ax = plt.subplots(figsize=(20, 5))
-    ax.text(0.5, 0.5, inline_expr, size=20, ha='center', weight="bold")
-
-    # Remove the plot axes
-    ax.set_axis_off()
-
-    # Save the plot as a PNG with a transparent background
-    plt.savefig(fname=file_name, format="png", transparent=True, bbox_inches='tight', pad_inches=0.0, dpi=200)
-    plt.close(fig)
-
-    return file_name
-
 def crop_image(file_name:str) -> str:
     """ Takes the given image file, crops to a tight box around the content,
         ignoring any transparent pixels
@@ -50,35 +20,63 @@ def crop_image(file_name:str) -> str:
     # Read input image, and convert to NumPy array.
     img = np.array(Image.open(file_name))  # img is 1080 rows by 1920 cols and 4 color channels, the 4'th channel is alpha.
 
-    # Find indices of non-transparent pixels (indices where alpha channel value is above zero).
-    idx = np.where(img[:, :, 3] > 0)
+    # Find indices of non-white pixels
+    idx = np.where(img[:, :, 0] < 250)
 
     # Get minimum and maximum index in both axes (top left corner and bottom right corner)
     x0, y0, x1, y1 = idx[1].min(), idx[0].min(), idx[1].max(), idx[0].max()
 
     # Add a little padding on the sides (to separate from adjacent text)
-    x0 = max(0, x0-25)
-    x1 = min(len(img[0]), x1+25)
+    H_PADDING = 25
+    x0 = max(0, x0 - H_PADDING)
+    x1 = min(len(img[0]), x1 + H_PADDING)
      
     # Add vertical padding if too small
+    MIN_HEIGHT = 48
     height = y1 - y0
-    if height < 70:
-        pad_y = (90-height)//2
-        y0 = max(0, y0 - (pad_y + 10))
-        y1 = min(len(img[1]), y1 + (pad_y - 10))
+    if height < MIN_HEIGHT:
+        y0 = max(0, y0 - (MIN_HEIGHT - height))
 
     # Crop rectangle and convert to Image
     out = Image.fromarray(img[y0:y1+1, x0:x1+1, :])
 
     # Save the result (RGBA color format).
-    out_file = file_name.split('.')[0] + "_cr.png"
-    out.save(out_file)
+    out_file = NamedTemporaryFile(suffix='.png', delete = False)
+    out.save(out_file.name)
 
-    return out_file, (x1-x0, y1-y0)
+    return out_file.name, (x1-x0, y1-y0)
+
+
+def collect_latex_statements(elements: list):
+    latex_statements = []
+    for el in elements:
+        if isinstance(el, LatexMath):
+            latex_statements.append(el)
+        latex_statements.extend(collect_latex_statements(el))
+    return latex_statements
+
+def render_latex_statements(latex_statements: list):
+    with NamedTemporaryFile(mode='w', suffix='.md', delete=False) as f:
+        f.write("<style> section { font-size: 48px; } </style>\n\n")
+        f.write("\n\n---\n\n".join(map(str, latex_statements)))
+
+    res = subprocess.run(['marp', '--images=png', f.name])
+    if res.returncode != 0:
+        print("create_marp_slides: Marp Error!: \n" + res.stderr)
+        return
+
+    for i, latex in enumerate(latex_statements):
+        latex.rendered_image = f.name.replace(".md", f".{i+1:03}.png")
+
 
 class PdfRenderer(HtmlRenderer):
     def __init__(self, url_mapper = None):
         super().__init__(url_mapper)
+
+    def render_markdown_elements(self, elements: list) -> str:
+        latex_statements = collect_latex_statements(elements)
+        render_latex_statements(latex_statements)
+        return super().render_markdown_elements(elements)
 
     def render_table(self, table: Table) -> str:
         headings = [ self.render_text_element(h) for h in table.headings ]
@@ -94,14 +92,14 @@ class PdfRenderer(HtmlRenderer):
         return link_text
 
     def render_text_element(self, text) -> str:
-        if isinstance(text, LatexText):
+        if isinstance(text, LatexMath):
             return self.render_latex_math(text)
         return super().render_text_element(text)
 
-    def render_latex_math(self, text: LatexText) -> str:
-        temp_img = render_math_expression(text.raw_text())
-        cropped_img, dims = crop_image(temp_img)
-        #print("Rendered Math Expression: " + text.raw_text())
+    def render_latex_math(self, text: LatexMath) -> str:
+        if text.rendered_image == None:
+            return HtmlTemplates.code(str(text))
+        cropped_img, dims = crop_image(text.rendered_image)
         return HtmlTemplates.img(cropped_img, text.raw_text(), cls="inline", width=int(dims[0]/4), height=(dims[1]/4))
 
     def render_callout(self, callout: Callout) -> str:

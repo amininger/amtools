@@ -134,7 +134,7 @@ class MarkdownParser:
         self.text_matchers.append(TextElementMatcher(r_ANGLE_LINK, Hyperlink, UnparsedArg))
         self.text_matchers.append(TextElementMatcher(r_TAG, Tag, UnparsedArg))
         self.text_matchers.append(TextElementMatcher(r_TAG2, Tag, UnparsedArg))
-        self.text_matchers.append(TextElementMatcher(r_LATEX_MATH, LatexText, UnparsedArg))
+        self.text_matchers.append(TextElementMatcher(r_LATEX_MATH, LatexMath, UnparsedArg))
         self.text_matchers.append(TextElementMatcher(r_BOLD_ITALICS, BoldItalicsText, ParsedArg))
         self.text_matchers.append(TextElementMatcher(r_ITALICS, ItalicsText, ParsedArg))
         self.text_matchers.append(TextElementMatcher(r_BOLD, BoldText, ParsedArg))

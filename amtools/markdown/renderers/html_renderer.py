@@ -130,7 +130,7 @@ class HtmlRenderer:
                 return HtmlTemplates.italics(rendered_children)
             if isinstance(text, CodeText):
                 return HtmlTemplates.code(rendered_children)
-            if isinstance(text, LatexText):
+            if isinstance(text, LatexMath):
                 return HtmlTemplates.latex(rendered_children)
             if isinstance(text, StrikethroughText):
                 return HtmlTemplates.delete(rendered_children)

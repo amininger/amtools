@@ -11,6 +11,9 @@ class Hyperlink(MarkdownElement):
         if self.title is not None and self.title[0].startswith('"'):
             self.title = self.title[1:-1]
 
+    def children(self):
+        return [ self.text ]
+
     def raw_text(self) -> str:
         return self.text.raw_text()
 

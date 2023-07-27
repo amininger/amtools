@@ -21,6 +21,9 @@ class TaskItem(MarkdownElement):
         if self.status == TaskItemStatus.COMPLETE:   return 'x' 
         if self.status == TaskItemStatus.UNKNOWN:    return '?'
 
+    def children(self):
+        return [ self.text ]
+
     def is_checked(self):
         return self.status == TaskItemStatus.COMPLETE or self.status == TaskItemStatus.UNKNOWN
 
@@ -31,6 +34,9 @@ class TaskList(MarkdownElement):
     """ A list of tasks to complete """
     def __init__(self, items: List[TaskItem]):
         self.items = items
+
+    def children(self):
+        return self.items
 
     def __str__(self) -> str:
         return '\n'.join(map(str, self.items))

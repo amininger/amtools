@@ -8,6 +8,9 @@ class BlockQuote(MarkdownElement):
 
     def __init__(self, elements):
         self.elements = elements
+
+    def children(self):
+        return self.elements
     
     def __str__(self) -> str:
         return "| " + "\n| ".join(str(elem) for elem in self.elements)
