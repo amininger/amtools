@@ -1,25 +1,17 @@
 /* 
 @theme ucbc
-@size 4:3 1024px 768px
+@size 16:10 1280px 800px
 */
 
 @import 'gaia'
 
-@font-face { font-family: Metropolis; font-weight: 200; src: url('/home/aaron/workspace/python/amtools/res/fonts/Metropolis-Thin.otf'); }
-@font-face { font-family: Metropolis; font-weight: 400; src: url('/home/aaron/workspace/python/amtools/res/fonts/Metropolis-Regular.otf'); }
-@font-face { font-family: Metropolis; font-weight: 700; src: url('/home/aaron/workspace/python/amtools/res/fonts/Metropolis-Bold.otf'); }
+@font-face { font-family: ZillaSlab; font-weight: thin; src: url('/home/aaron/workspace/python/amtools/res/fonts/ZillaSlab-Light.ttf'); }
+@font-face { font-family: ZillaSlab; font-weight: normal; src: url('/home/aaron/workspace/python/amtools/res/fonts/ZillaSlab-Regular.ttf'); }
+@font-face { font-family: ZillaSlab; font-weight: bold; src: url('/home/aaron/workspace/python/amtools/res/fonts/ZillaSlab-Bold.ttf'); }
+@font-face { font-family: ZillaSlab; font-weight: normal; font-style: italic; src: url('/home/aaron/workspace/python/amtools/res/fonts/ZillaSlab-Italic.ttf'); }
 
-@font-face { font-family: ZillaSlab; font-weight: 200; src: url('/home/aaron/workspace/python/amtools/res/fonts/ZillaSlab-Light.ttf'); }
-@font-face { font-family: ZillaSlab; font-weight: 400; src: url('/home/aaron/workspace/python/amtools/res/fonts/ZillaSlab-Regular.ttf'); }
-@font-face { font-family: ZillaSlab; font-weight: 700; src: url('/home/aaron/workspace/python/amtools/res/fonts/ZillaSlab-Bold.ttf'); }
-
-@font-face { font-family: Alfa; src: url('/home/aaron/workspace/python/amtools/res/fonts/AlfaSlabOne-Regular.ttf'); }
-@font-face { font-family: Bungee; src: url('/home/aaron/workspace/python/amtools/res/fonts/Bungee-Regular.ttf'); }
-@font-face { font-family: Calistoga; src: url('/home/aaron/workspace/python/amtools/res/fonts/Calistoga-Regular.ttf'); }
-@font-face { font-family: Raleway; src: url('/home/aaron/workspace/python/amtools/res/fonts/Raleway-Regular.ttf'); }
-
-@font-face { font-family: Jost; font-weight: 400; src: url('/home/aaron/workspace/python/amtools/res/fonts/Jost-Regular.ttf'); }
-@font-face { font-family: Jost; font-weight: 700; src: url('/home/aaron/workspace/python/amtools/res/fonts/Jost-Bold.ttf'); }
+@font-face { font-family: Jost; font-weight: normal; src: url('/home/aaron/workspace/python/amtools/res/fonts/Jost-Regular.ttf'); }
+@font-face { font-family: Jost; font-weight: bold; src: url('/home/aaron/workspace/python/amtools/res/fonts/Jost-Bold.ttf'); }
 
 :root {
 	--WHITE: rgb(255, 255, 255);
@@ -105,7 +97,7 @@ h1 {
 
 	background-color: var(--col_header);
 	color: var(--WHITE);
-	font-weight: 200;
+	font-weight: thin;
 	font-size: 1.8em;
 }
 :root.plain h1 {
@@ -126,10 +118,18 @@ h2 {
 	margin-top: 0.5em;
 	margin-bottom: 0.3em;
 }
+:root.condensed h2 {
+	margin-top: 0.2em;
+	margin-bottom: 0.1em;
+}
 h3 {
 	font-size: 1.2em;
 	margin-top: 0.4em;
 	margin-bottom: 0.2em;
+}
+:root.condensed h3 {
+	margin-top: 0.15em;
+	margin-bottom: 0.1em;
 }
 h2 strong, h3 strong {
 	color: var(--GREEN);
@@ -139,6 +139,10 @@ p {
 	margin-top: 0.4em;
 	margin-bottom: 0.4em;
 	line-height: 1.6;
+}
+:root.condensed p {
+	margin-top: 0.1em;
+	margin-bottom: 0.1em;
 }
 
 code {
@@ -161,6 +165,9 @@ section pre {
 	font-size: 1.0em;
 
 	background:	#F0F0F0;
+}
+:root.condensed pre {
+	margin: 0.2em 0;
 }
 
 section pre code {
@@ -196,8 +203,16 @@ ul, ol {
 	margin-left: 0.5em;
 }
 
+:root.condensed ul, :root.condensed ol {
+	margin-top: 0.1em;
+	margin-bottom: 0.1em;
+}
+
 li {
 	margin: 0.25em 0;
+}
+:root.condensed li {
+	margin: 0.1em 0;
 }
 
 table {

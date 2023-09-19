@@ -8,14 +8,16 @@ from amtools.markdown.elements import *
 r_COMMENT       = re.compile(r"^//")
 r_EMPTY_LINE    = re.compile(r"^[ \t]*$")
 r_INDENTED      = re.compile(r"^(\t|    )")
+
+# INLINE PATTERNS
 r_BOLD_ITALICS  = re.compile(r"\*\*\*([^*]+)\*\*\*")
 r_BOLD          = re.compile(r"\*\*([^*]+)\*\*")
 r_ITALICS       = re.compile(r"_([^_]+)_")
 r_STRIKETHROUGH = re.compile(r"~~([^~]+)~~")
 r_HIGHLIGHT     = re.compile(r"==([^=]+)==")
 r_CODE          = re.compile(r"`([^`]+)`")
+r_LATEX_MATH    = re.compile(f"\$([^$]+)\$($|[^0-9$])")  
 r_CODE2         = re.compile(r"``([^`]([^`]|`[^`])+)``")
-r_LATEX_MATH    = re.compile(f"\$([^$]+)\$($|[^0-9$])")
 r_TAG           = re.compile(r"^\#([-/\w]*[a-zA-Z][-/\w]*)\b")
 r_TAG2          = re.compile(r"\s\#([-/\w]*[a-zA-Z][-/\w]*)\b")
 r_LINK          = re.compile(r'\[([^][]*)\]\(([^)("\s]+)\s*("[^"]+")?\)')
@@ -25,7 +27,8 @@ r_ANGLE_LINK    = re.compile(r"<([^<>\s]+\.[^<>\s]+)>")
 #r_INLINE_IMAGE  = re.compile(r"!\[([^][]*)\]\(([^)(]+)\)")
 #r_INLINE_IMAGE2 = re.compile(r"!\[\[([^][]*)\]\]")
 
-r_HEADING       = re.compile(r"^(#{1,6}) ([^{]*)(\{\#[-\w]*[a-zA-Z][-\w]*\})?\s*$")
+#r_HEADING       = re.compile(r"^(#{1,6}) ([^{]*)(\{\#[-\w]*[a-zA-Z][-\w]*\})?\s*$")
+r_HEADING       = re.compile(r"^(#{1,6}) (.*)$")
 r_HRULE         = re.compile(r"^[-=_*]{3,}$")
 r_IMAGE         = re.compile("!" + r_LINK.pattern)
 r_IMAGE2        = re.compile("!" + r_INTERNAL_LINK.pattern)
@@ -35,7 +38,7 @@ r_HTML_COMMENT  = re.compile(r"<!--(.*)-->")
 
 r_TABLE         = re.compile(r"^\|([^|]+\|)+ *$")
 r_TASK_LIST     = re.compile(r"^- \[[ ?xX]\] ")
-r_BULLETED_LIST = re.compile(r"^[*-+] ")
+r_BULLETED_LIST = re.compile(r"^[-*+] ")
 r_NUMBERED_LIST = re.compile(r"^[0-9A-Z]{1,3}\. ")
 r_CODE_BLOCK    = re.compile(r"^```\w*\s*$")
 r_BLOCK_QUOTE   = re.compile(r"^> ")
@@ -130,17 +133,17 @@ class MarkdownParser:
         #self.text_matchers.append(TextElementMatcher(r_INLINE_IMAGE, Image, UnparsedArg))
         #self.text_matchers.append(TextElementMatcher(r_INLINE_IMAGE2, Image, UnparsedArg))
         self.text_matchers.append(TextElementMatcher(r_LINK, Hyperlink, ParsedArg, UnparsedArg, UnparsedArg))
-        self.text_matchers.append(TextElementMatcher(r_INTERNAL_LINK, Hyperlink, ParsedArg, UnparsedArg, UnparsedArg))
+        #self.text_matchers.append(TextElementMatcher(r_INTERNAL_LINK, Hyperlink, ParsedArg, UnparsedArg, UnparsedArg))
         self.text_matchers.append(TextElementMatcher(r_ANGLE_LINK, Hyperlink, UnparsedArg))
-        self.text_matchers.append(TextElementMatcher(r_TAG, Tag, UnparsedArg))
-        self.text_matchers.append(TextElementMatcher(r_TAG2, Tag, UnparsedArg))
+        #self.text_matchers.append(TextElementMatcher(r_TAG, Tag, UnparsedArg))
+        #self.text_matchers.append(TextElementMatcher(r_TAG2, Tag, UnparsedArg))
         self.text_matchers.append(TextElementMatcher(r_LATEX_MATH, LatexMath, UnparsedArg))
         self.text_matchers.append(TextElementMatcher(r_BOLD_ITALICS, BoldItalicsText, ParsedArg))
         self.text_matchers.append(TextElementMatcher(r_ITALICS, ItalicsText, ParsedArg))
         self.text_matchers.append(TextElementMatcher(r_BOLD, BoldText, ParsedArg))
         self.text_matchers.append(TextElementMatcher(r_STRIKETHROUGH, StrikethroughText, ParsedArg))
         self.text_matchers.append(TextElementMatcher(r_HIGHLIGHT, HighlightText, ParsedArg))
-        self.text_matchers.append(TextElementMatcher(r_CODE2, CodeText, UnparsedArg))
+        #self.text_matchers.append(TextElementMatcher(r_CODE2, CodeText, UnparsedArg))
         self.text_matchers.append(TextElementMatcher(r_CODE, CodeText, UnparsedArg))
 
     def close_paragraph(self, paragraph, elements):
@@ -207,7 +210,7 @@ class MarkdownParser:
     def parse_heading(self, line: str, re_match: re.Match) -> Heading:
         weight = len(re_match.group(1))
         title = self.parse_inline_text(re_match.group(2))
-        hid = re_match.group(3)
+        hid = None #re_match.group(3)
         if hid is not None:
             hid = hid[2:-1] # Remove braces and # symbol
         return Heading(weight, title, hid)
@@ -380,10 +383,16 @@ class MarkdownParser:
         """ Will parse a blob of text with inline formatting elements, 
             such as bold, italics, inline code, links, etc """
 
+        matches = []
         for matcher in self.text_matchers:
             re_match = re.search(matcher.pattern, text)
             if re_match is not None:
-                return self.parse_matched_inline_text(text, re_match, matcher)
+                matches.append((re_match, matcher))
+
+        if len(matches) > 0:
+            matches.sort(key = lambda match: match[0].start())
+            first_match = matches[0]
+            return self.parse_matched_inline_text(text, first_match[0], first_match[1])
 
         return RawText(text)
 

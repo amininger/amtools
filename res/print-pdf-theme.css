@@ -31,7 +31,8 @@
 /**@font-face { font-family: Alfa; src: url('/home/aaron/workspace/python/amtools/res/fonts/AlfaSlabOne-Regular.ttf'); }**/
 /**@font-face { font-family: Bungee; src: url('/home/aaron/workspace/python/amtools/res/fonts/Bungee-Regular.ttf'); }**/
 @font-face { font-family: Calistoga; src: url('/home/aaron/workspace/python/amtools/res/fonts/Calistoga-Regular.ttf'); }
-@font-face { font-family: Raleway; src: url('/home/aaron/workspace/python/amtools/res/fonts/Raleway-Regular.ttf'); }
+/**
+@font-face { font-family: Raleway; src: url('/home/aaron/workspace/python/amtools/res/fonts/Raleway-Regular.ttf'); }**/
 
 pdftoc {
     display: block;
@@ -44,7 +45,7 @@ html {
 	--font_text: "ZillaSlab", sans-serif;
 	**/
     font-family: ZillaSlab, serif;
-    font-size: 11pt;
+    font-size: 10pt;
     font-weight: normal;
     color: #000000;
 }
@@ -107,9 +108,8 @@ strong, b {
 em, i {
     font-family: ZillaSlab_Italic, serif;
 }
-h1 em, h2 em, h3 em, h4 em {
+h1 em, h2 em {
     font-family: ZillaSlab_BI, serif;
-    font-size: 1.2em;
 }
 
 /***** links *****/

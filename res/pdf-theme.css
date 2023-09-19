@@ -108,9 +108,12 @@ strong, b {
 em, i {
     font-family: ZillaSlab_Italic, serif;
 }
-h1 em, h2 em, h3 em, h4 em {
+h1 em, h2 em {
     font-family: ZillaSlab_BI, serif;
-    font-size: 1.2em;
+}
+
+strong em, em strong {
+    font-family: ZillaSlab_BI, serif;
 }
 
 /***** links *****/

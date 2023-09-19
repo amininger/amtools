@@ -9,7 +9,6 @@ from amtools.markdown.elements import *
 from .html_templates import HtmlTemplates
 from .html_renderer import HtmlRenderer
 
-import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 
@@ -18,7 +17,7 @@ def crop_image(file_name:str) -> str:
         ignoring any transparent pixels
         Returns the saved cropped image name """
     # Read input image, and convert to NumPy array.
-    img = np.array(Image.open(file_name))  # img is 1080 rows by 1920 cols and 4 color channels, the 4'th channel is alpha.
+    img = np.array(Image.open(file_name))  
 
     # Find indices of non-white pixels
     idx = np.where(img[:, :, 0] < 250)
@@ -27,15 +26,16 @@ def crop_image(file_name:str) -> str:
     x0, y0, x1, y1 = idx[1].min(), idx[0].min(), idx[1].max(), idx[0].max()
 
     # Add a little padding on the sides (to separate from adjacent text)
-    H_PADDING = 25
+    H_PADDING = 18
     x0 = max(0, x0 - H_PADDING)
     x1 = min(len(img[0]), x1 + H_PADDING)
      
     # Add vertical padding if too small
-    MIN_HEIGHT = 48
+    MIN_HEIGHT = 36
     height = y1 - y0
     if height < MIN_HEIGHT:
         y0 = max(0, y0 - (MIN_HEIGHT - height))
+    y0 = max(0, y0 - 9) # More padding to top
 
     # Crop rectangle and convert to Image
     out = Image.fromarray(img[y0:y1+1, x0:x1+1, :])
@@ -50,6 +50,8 @@ def crop_image(file_name:str) -> str:
 def collect_latex_statements(elements: list):
     latex_statements = []
     for el in elements:
+        if el == elements:
+            continue
         if isinstance(el, LatexMath):
             latex_statements.append(el)
         latex_statements.extend(collect_latex_statements(el))
@@ -57,7 +59,7 @@ def collect_latex_statements(elements: list):
 
 def render_latex_statements(latex_statements: list):
     with NamedTemporaryFile(mode='w', suffix='.md', delete=False) as f:
-        f.write("<style> section { font-size: 48px; } </style>\n\n")
+        f.write("<style> section { font-size: 36px; } </style>\n\n")
         f.write("\n\n---\n\n".join(map(str, latex_statements)))
 
     res = subprocess.run(['marp', '--images=png', f.name])
@@ -75,7 +77,8 @@ class PdfRenderer(HtmlRenderer):
 
     def render_markdown_elements(self, elements: list) -> str:
         latex_statements = collect_latex_statements(elements)
-        render_latex_statements(latex_statements)
+        if len(latex_statements) > 0:
+            render_latex_statements(latex_statements)
         return super().render_markdown_elements(elements)
 
     def render_table(self, table: Table) -> str:
@@ -100,7 +103,7 @@ class PdfRenderer(HtmlRenderer):
         if text.rendered_image == None:
             return HtmlTemplates.code(str(text))
         cropped_img, dims = crop_image(text.rendered_image)
-        return HtmlTemplates.img(cropped_img, text.raw_text(), cls="inline", width=int(dims[0]/4), height=(dims[1]/4))
+        return HtmlTemplates.img(cropped_img, text.raw_text(), cls="inline", width=int(dims[0]/3), height=(dims[1]/3))
 
     def render_callout(self, callout: Callout) -> str:
         rendered_title = self.render_text_element(callout.title)

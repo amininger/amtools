@@ -17,12 +17,15 @@ def main():
         --all: converts all markdown files in current dir
         --print: uses a printer-friendly theme without much color """
     print_theme = False
+    verbose = False
     files = []
     for arg in sys.argv[1:]:
         if arg == "--all":
             files.extend([ f for f in os.listdir() if f.endswith(".md") ])
         elif arg == "--print":
             print_theme = True
+        elif arg == "--verbose":
+            verbose = True
         else:
             files.append(arg)
 
@@ -46,14 +49,15 @@ def main():
         with open(ifile, 'r') as f:
             markdown = f.read()
         markdown = fsutil.remove_metadata(markdown)
-        make_pdf_from_markdown(ofile, markdown, css_files)
+        make_pdf_from_markdown(ofile, markdown, css_files, verbose)
 
-def make_pdf_from_markdown(filename, markdown, css_files):
+def make_pdf_from_markdown(filename, markdown, css_files, verbose=False):
     """ Renders the given markdown as a pdf document and saves it as the given file """
     elements = MarkdownParser.parse_string(markdown)
     renderer = PdfRenderer()
     pdf_html = renderer.render_document(filename, elements, css_files=css_files)
-    #print(pdf_html)
+    if verbose:
+        print(pdf_html)
     save_pdf_document(filename, pdf_html)
 
 def save_pdf_document(filename:str, pdf_html:str):

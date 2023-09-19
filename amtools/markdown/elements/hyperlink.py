@@ -15,7 +15,10 @@ class Hyperlink(MarkdownElement):
         return [ self.text ]
 
     def raw_text(self) -> str:
-        return self.text.raw_text()
+        if isinstance(self.text, str):
+            return self.text
+        else:
+            return self.text.raw_text()
 
     def __str__(self) -> str:
         return "[" + str(self.text) + "](@" + self.addr + ")"
